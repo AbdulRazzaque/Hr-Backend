@@ -2,7 +2,6 @@
 const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
-
 const newEmployeeSchema = new Schema(
   {
     // New Employee Info
@@ -34,43 +33,42 @@ const newEmployeeSchema = new Schema(
     // Passport Details
     passportNumber: { type: String, required: true },
     passportDateOfIssue: { type: Date, required: true },
-    // passportPlaceOfIssue: { type: String, required: true },
     passportDateOfExpiry: { type: Date, required: true },
 
     // HR Purpose
-    // bloodGroup: { type: String, required: true },
     employeeNumber: { type: Number, required: true },
     position: { type: String, required: true },
-    status: {type: String,default: 'Active'}, // Default value for status},
+    status: {type: String,default: 'Active'}, 
 
     // Image fields with URL formatting
     employeeImage: {
       type: String,
       required: true,
-      get: (employeeImage) => `${process.env.APP_URL}/${employeeImage}`
+      get: (employeeImage) => employeeImage && !employeeImage.startsWith('http') ? `${process.env.APP_URL}/${employeeImage}` : employeeImage
     },
     employeePassport: {
       type: String,
       required: true,
-      get: (employeePassport) => `${process.env.APP_URL}/${employeePassport}`
+      get: (employeePassport) => employeePassport && !employeePassport.startsWith('http') ? `${process.env.APP_URL}/${employeePassport}` : employeePassport
     },
     employeeQatarID: {
       type: String,
       required: true,
-      get: (employeeQatarID) => `${process.env.APP_URL}/${employeeQatarID}`
+      get: (employeeQatarID) => employeeQatarID && !employeeQatarID.startsWith('http') ? `${process.env.APP_URL}/${employeeQatarID}` : employeeQatarID
     },
     employeeContractCopy: {
       type: String,
       required: true,
-      get: (employeeContractCopy) => `${process.env.APP_URL}/${employeeContractCopy}`
+      get: (employeeContractCopy) => employeeContractCopy && !employeeContractCopy.startsWith('http') ? `${process.env.APP_URL}/${employeeContractCopy}` : employeeContractCopy
     },
     employeeGraduationCertificate: {
       type: String,
       required: true,
-      get: (employeeGraduationCertificate) => `${process.env.APP_URL}/${employeeGraduationCertificate}`
+      get: (employeeGraduationCertificate) => employeeGraduationCertificate && !employeeGraduationCertificate.startsWith('http') ? `${process.env.APP_URL}/${employeeGraduationCertificate}` : employeeGraduationCertificate
     }
   },
   { timestamps: true, toJSON: { getters: true } }
 );
+
 
 module.exports = mongoose.model("NewEmployee", newEmployeeSchema, "newEmployees");

@@ -111,81 +111,88 @@ const newEmployeeController = {
 
 
   //==================================================== Update Employee API ====================================================
+
   async updateEmployee(req, res, next) {
-    handleMultipartData(req, res, async (err) => {
-      if (err) return next(err);
-
-      const filePaths = {
-        employeeImage: req.files.employeeImage ? req.files.employeeImage[0].path : null,
-        employeePassport: req.files.employeePassport ? req.files.employeePassport[0].path : null,
-        employeeQatarID: req.files.employeeQatarID ? req.files.employeeQatarID[0].path : null,
-        employeeContractCopy: req.files.employeeContractCopy ? req.files.employeeContractCopy[0].path : null,
-        employeeGraduationCertificate: req.files.employeeGraduationCertificate ? req.files.employeeGraduationCertificate[0].path : null,
-      };
-
-      // Validation schema
-      const EmployeeSchema = Joi.object({
-        name: Joi.string().required(),
-        arabicName: Joi.string().required(),
-        dateOfBirth: Joi.date().required(),
-        dateOfJoining: Joi.date().required(),
-        mobileNumber: Joi.number().required(),
-        maritalStatus: Joi.string().required(),
-        nationality: Joi.string().required(),
-        department: Joi.string().required(),
-
-        probationDate: Joi.date().required(),
-        probationMonthofNumber: Joi.number().required(),
-        probationAmount: Joi.number().required(),
-
-        BasicSalary: Joi.number().required(),
-        HousingAmount: Joi.number().required(),
-        transportationAmount: Joi.number().required(),
-        otherAmount: Joi.number().required(),
-        visaType: Joi.string().required(),
-
-     
-       // Allow qatarID and qatarIdExpiry to be optional
-        qatarID: Joi.string().allow(null, ''),
-        qatarIdExpiry: Joi.date().allow(null, ''),
-
-        passportNumber: Joi.string().required(),
-        passportDateOfIssue: Joi.date().required(),
-        // passportPlaceOfIssue: Joi.string().required(),
-        passportDateOfExpiry: Joi.date().required(),
-
-        // bloodGroup: Joi.string().required(),
-        employeeNumber: Joi.number().required(),
-        position: Joi.string().required(),
-      });
-
-      const { error } = EmployeeSchema.validate(req.body);
-      if (error) {
-        Object.values(filePaths).forEach((filePath) => {
-          if (filePath) fs.unlinkSync(filePath);
-        });
-        return next(error);
-      }
-
-      try {
+    try {
+      // Handle multipart data
+      handleMultipartData(req, res, async (err) => {
+        if (err) return next(err);
+  
+        console.log(req.body);
+  
+        // Safeguard against missing req.files
+        const filePaths = {
+          employeeImage: req.files?.employeeImage ? req.files.employeeImage[0].path : null,
+          employeePassport: req.files?.employeePassport ? req.files.employeePassport[0].path : null,
+          employeeQatarID: req.files?.employeeQatarID ? req.files.employeeQatarID[0].path : null,
+          employeeContractCopy: req.files?.employeeContractCopy ? req.files.employeeContractCopy[0].path : null,
+          employeeGraduationCertificate: req.files?.employeeGraduationCertificate
+            ? req.files.employeeGraduationCertificate[0].path
+            : null,
+        };
+  
+        // Fetch the existing employee to clean up old files if new images are uploaded
+        const existingEmployee = await NewEmployee.findById(req.params.id);
+        if (!existingEmployee) return res.status(404).json({ message: 'Employee not found' });
+  
+        // Prepare update data by merging new paths and retaining old ones if no new file is uploaded
         const updateData = {
           ...req.body,
-          ...filePaths,
+          employeeImage: filePaths.employeeImage || existingEmployee.employeeImage,
+          employeePassport: filePaths.employeePassport || existingEmployee.employeePassport,
+          employeeQatarID: filePaths.employeeQatarID || existingEmployee.employeeQatarID,
+          employeeContractCopy: filePaths.employeeContractCopy || existingEmployee.employeeContractCopy,
+          employeeGraduationCertificate:
+            filePaths.employeeGraduationCertificate || existingEmployee.employeeGraduationCertificate,
         };
-
-        const updatedEmployee = await NewEmployee.findByIdAndUpdate(
-          req.params.id,
-          updateData,
-          { new: true }
-        );
-
-        res.json({ updatedEmployee });
-      } catch (error) {
-        return next(error);
-      }
-    });
+  
+        // Only delete old images if new images are uploaded
+        const oldFilePaths = [
+          existingEmployee.employeeImage,
+          existingEmployee.employeePassport,
+          existingEmployee.employeeQatarID,
+          existingEmployee.employeeContractCopy,
+          existingEmployee.employeeGraduationCertificate,
+        ];
+  
+        oldFilePaths.forEach((oldFilePath, index) => {
+          // Delete old images only if a new image is uploaded for that specific field
+          if (filePaths[Object.keys(filePaths)[index]] && oldFilePath) {
+            const fullPath = path.resolve(__dirname, '..', '..', 'uploads', path.basename(oldFilePath));
+            console.log(`Attempting to delete file at: ${fullPath}`);
+  
+            if (fs.existsSync(fullPath)) {
+              try {
+                fs.unlinkSync(fullPath);
+                console.log(`Successfully deleted file: ${fullPath}`);
+              } catch (err) {
+                console.error(`Error deleting file ${fullPath}:`, err);
+              }
+            } else {
+              console.warn(`File not found at path: ${fullPath}`);
+            }
+          }
+        });
+  
+        // Update the employee in the database with new image paths
+        const updatedEmployee = await NewEmployee.findByIdAndUpdate(req.params.id, updateData, { new: true });
+  
+        // Send the updated employee data as response
+        res.json({ message: 'Employee updated successfully', updatedEmployee });
+        console.log(updatedEmployee, 'updatedEmployee');
+      });
+    } catch (error) {
+      // Cleanup any uploaded files if an error occurs
+      const filePaths = Object.values(filePaths);
+      filePaths.forEach((filePath) => {
+        if (filePath) fs.unlinkSync(filePath);
+      });
+      return next(error);
+    }
   },
-
+  
+  
+  
   //==================================================== Delete Employee API ====================================================
   
   
