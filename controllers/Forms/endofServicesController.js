@@ -37,21 +37,14 @@ const endofServicesController = {
     //-----------endofServicesSchema--------------------
         employeeId: Joi.objectId().required(), // ObjectId format
         date:Joi.date().required(),
-        subject: Joi.string().required(),
+        subject: Joi.string().allow(null, ''),
         exitType: Joi.string().required(),
         lastWorkingDate: Joi.date().required(),
         dateOfJoining: Joi.date().required(),
         resumingofLastVacation: Joi.date().required(),
-        other: Joi.string().required(),
+        other: Joi.string().allow(null, ''),
 
-    //---------------Prepared-----------------------
-        preparedName: Joi.string().required(),
-        preparedDate: Joi.date().required(),
-        hrName: Joi.string().required(),
-        hrDate: Joi.date().required(),
-        directorName: Joi.string().required(),
-        directorDate: Joi.date().required(),
-        // avatar: Joi.string().required(),
+
       });
 
       const { error } = endofservicesSchema.validate(req.body);
@@ -75,12 +68,7 @@ const endofServicesController = {
         dateOfJoining,
         resumingofLastVacation,
         other,
-        preparedName,
-        preparedDate,
-        hrName,
-        hrDate,
-        directorName,
-        directorDate,
+  
 
       } = req.body;
 
@@ -95,18 +83,21 @@ const endofServicesController = {
         dateOfJoining,
         resumingofLastVacation,
         other,
-        preparedName,
-        preparedDate,
-        hrName,
-        hrDate,
-        directorName,
-        directorDate,
         });
+
+        const UpdateEmployee = await NewEmployee.findByIdAndUpdate(
+          employeeId,
+          {status:"Deactive"},
+          {new:true}
+        )
+        if(!UpdateEmployee){
+          return next(new Error("Faild to update employee status"))
+        }
       } catch (error) {
         return next(error);
       }
 
-      res.status(201).json({ endofservices: endofservices });
+      res.status(201).json({message:"Employee successfully removed ", endofservices: endofservices });
     });
   },
   //--------------------endos services.Api----------------------------
@@ -124,20 +115,15 @@ const endofServicesController = {
       const UpdateEndofservices = Joi.object({
         employeeId: Joi.objectId().required(), // ObjectId format
         date:Joi.date().required(),
-        subject: Joi.string().required(),
+        subject: Joi.string().allow(null, ''),
         exitType: Joi.string().required(),
         lastWorkingDate: Joi.date().required(),
         dateOfJoining: Joi.date().required(),
         resumingofLastVacation: Joi.date().required(),
-        other: Joi.string().required(),
+        other: Joi.string().allow(null, '')
 
     //---------------Prepared-----------------------
-        preparedName: Joi.string().required(),
-        preparedDate: Joi.date().required(),
-        hrName: Joi.string().required(),
-        hrDate: Joi.date().required(),
-        directorName: Joi.string().required(),
-        directorDate: Joi.date().required(),
+  
       });
 
       const { error } = UpdateEndofservices.validate(req.body);
@@ -163,12 +149,7 @@ const endofServicesController = {
         dateOfJoining,
         resumingofLastVacation,
         other,
-        preparedName,
-        preparedDate,
-        hrName,
-        hrDate,
-        directorName,
-        directorDate,
+    
       } = req.body;
 
       let UpdateEndofservice;
@@ -186,12 +167,7 @@ const endofServicesController = {
         dateOfJoining,
         resumingofLastVacation,
         other,
-        preparedName,
-        preparedDate,
-        hrName,
-        hrDate,
-        directorName,
-        directorDate,
+  
           },
           { new: true }
         );
@@ -231,6 +207,7 @@ const endofServicesController = {
     let allEndofservice;
     try {
         allEndofservice = await EndofServices.find({})
+        .populate("employeeId") // Populate all fields of the Employee document
         .select("-__V -updatedAt")
         .sort({ _id: -1 });
     } catch (error) {
@@ -252,6 +229,15 @@ const endofServicesController = {
 
     res.json({ oneEndofservice: oneEndofservice });
   },
+  async getTotalExitEmployees(req,res,next){
+    try {
+      const totalExitEmployees = await EndofServices.countDocuments()
+      res.json({totalExitEmployees})
+    } catch (error) {
+
+      next(error)
+    }
+  }
   
 };
 

@@ -4,6 +4,7 @@ const path = require("path");
 const Joi = require("joi");
 const EmployeeResume = require("../../model/Forms/EmployeeResume");
 const RprenewalformModel = require("../../model/Forms/Rprenewalform");
+const newEmployee = require("../../model/Forms/newEmployee");
 
 
 const storage = multer.diskStorage({
@@ -42,7 +43,7 @@ const RprenewalformController = {
         RPRenewalRequested: Joi.string().required(),
         exitPermitRequested: Joi.string().required(),
         OthersRequested: Joi.string().required(),
-        comment: Joi.string().required(),
+        comment: Joi.string().allow(null,''),
         
       });
 
@@ -72,6 +73,11 @@ const RprenewalformController = {
       } = req.body;
 
       let Rprenewalform;
+       // Retrieve employee details using the employeeId
+    const employee = await newEmployee.findById(employeeId);
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
       try {
         Rprenewalform = await RprenewalformModel.create({
           employeeId ,
@@ -85,11 +91,15 @@ const RprenewalformController = {
           OthersRequested,
           comment,
         });
+        res.status(201).json({
+          message: `RP renewal successfully created for ${employee.name}`,
+          Rprenewalform: Rprenewalform,
+        });
       } catch (error) {
         return next(error);
       }
 
-      res.status(201).json({ Rprenewalform: Rprenewalform });
+  
     });
   },
   //--------------------endos services.Api----------------------------
@@ -114,7 +124,7 @@ const RprenewalformController = {
         RPRenewalRequested: Joi.string().required(),
         exitPermitRequested: Joi.string().required(),
         OthersRequested: Joi.string().required(),
-        comment: Joi.string().required(),
+        comment: Joi.string().allow(null,''),
         
        
       });

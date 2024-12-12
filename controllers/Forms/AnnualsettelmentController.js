@@ -3,6 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const Joi = require("joi");
 const Annualsettelment = require("../../model/Forms/Annualsettelment");
+const newEmployee = require("../../model/Forms/newEmployee");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, "uploads/"),
@@ -33,21 +34,13 @@ const AnnualsettelmentController = {
       const AnnualsettelmentSchema = Joi.object({
         employeeId: Joi.objectId().required(), // ObjectId format
         date: Joi.date().required(),
-        subject: Joi.string().required(),
+        subject: Joi.string().allow(null,""),
         to: Joi.string().required(),
         from: Joi.string().required(),
-        vacationStartDate: Joi.date().required(),
-        joiningDate: Joi.date().required(),
+        leaveStartDate: Joi.date().required(),
         resumingVacation: Joi.date().required(),
 
-        // hr 
-        preparedName: Joi.string().required(),
-        preparedDate: Joi.date().required(),
-        hrName: Joi.string().required(),
-        hrDate: Joi.date().required(),
-        directorName: Joi.string().required(),
-        directorDate: Joi.date().required(),
-       
+
 
       
       });
@@ -70,47 +63,45 @@ const AnnualsettelmentController = {
         subject,
         to,
         from,
-        vacationStartDate,
-        joiningDate,
+        leaveStartDate,
+
         resumingVacation,
-        preparedName,
-        preparedDate,
-        hrName,
-        hrDate,
-        directorName,
-        directorDate,
+
     
       } = req.body;
 
       let annualsettelment;
       try {
+
+        const employee = await  newEmployee.findById(employeeId).select("name");
+        if(!employee){
+          return res.status(404).json({message:"Employee not found"})
+        }
         annualsettelment = await Annualsettelment.create({
           employeeId,
           date,
           subject,
           to,
           from,
-          vacationStartDate,
-          joiningDate,
+          leaveStartDate,
           resumingVacation,
-          preparedName,
-          preparedDate,
-          hrName,
-          hrDate,
-          directorName,
-          directorDate,
+        });
+        res.status(201).json({
+          message: `Annual settlement successfully added for ${employee.name}`,
+          annualsettelment: annualsettelment
         });
       } catch (error) {
         return next(error);
       }
 
-      res.status(201).json({ annualsettelment: annualsettelment });
-
+    
+      
     });
   },
   //--------------------endos services.Api----------------------------
   async UpdateAnnualsettelment(req, res, next) {
     handleMultipartData(req, res, async (err) => {
+      console.log(req.body)
       if (err) {
         return next(err);
       }
@@ -123,23 +114,11 @@ const AnnualsettelmentController = {
       const AnnualsettelmentSchema = Joi.object({
         employeeId: Joi.objectId().required(), // ObjectId format
         date: Joi.date().required(),
-        subject: Joi.string().required(),
+        subject: Joi.string().allow(null,""),
         to: Joi.string().required(),
         from: Joi.string().required(),
-        vacationStartDate: Joi.date().required(),
-        joiningDate: Joi.date().required(),
+        leaveStartDate: Joi.date().required(),
         resumingVacation: Joi.date().required(),
-
-    // hr 
-    preparedName: Joi.string().required(),
-    preparedDate: Joi.date().required(),
-    hrName: Joi.string().required(),
-    hrDate: Joi.date().required(),
-    directorName: Joi.string().required(),
-    directorDate: Joi.date().required(),
-   
-      
-      
       });
 
       const { error } = AnnualsettelmentSchema.validate(req.body);
@@ -162,15 +141,9 @@ const AnnualsettelmentController = {
         subject,
         to,
         from,
-        vacationStartDate,
-        joiningDate,
+        leaveStartDate,
+
         resumingVacation,
-        preparedName,
-        preparedDate,
-        hrName,
-        hrDate,
-        directorName,
-        directorDate,
       } = req.body;
 
       let UpdateAnnualsettelment;
@@ -185,15 +158,9 @@ const AnnualsettelmentController = {
             subject,
             to,
             from,
-            vacationStartDate,
-            joiningDate,
+            leaveStartDate,
+    
             resumingVacation,
-            preparedName,
-            preparedDate,
-            hrName,
-            hrDate,
-            directorName,
-            directorDate,
           },
           { new: true }
         );
@@ -201,7 +168,7 @@ const AnnualsettelmentController = {
         return next(error);
       }
 
-      res.status(201).json({ UpdateAnnualsettelment: UpdateAnnualsettelment });
+      res.status(201).json({message:"Update successfully", UpdateAnnualsettelment: UpdateAnnualsettelment });
     });
   },
 
@@ -215,18 +182,13 @@ const AnnualsettelmentController = {
       if (!deleteAnnualsettelment) {
         return next(Error("Noting to delete."));
       }
-      const avatarpath = deleteAnnualsettelment.avatar;
-
-      fs.unlink(`${appRoot}/${avatarpath}`, (err) => {
-        if (err) {
-          return next(err);
-        }
-      });
+      res.json({message:"Annual settlement information Scessfully deleted" ,deleteAnnualsettelment: deleteAnnualsettelment });
+   
+      
     } catch (error) {
       return next(error);
     }
 
-    res.json({ deleteAnnualsettelment: deleteAnnualsettelment });
   },
 //   //---------------------All Employee API -------------------------
   async allAnnualsettelment(req, res, next) {
@@ -241,6 +203,32 @@ const AnnualsettelmentController = {
       res.json({ allAnnualsettelment: allAnnualsettelment });
 
   },
+  async getEmployeeAnnualSettlements(req, res, next) {
+    const employeeId = req.params.employeeId; // Extract employee ID from request params
+    try {
+      
+      // Fetch data for the specific employee
+      const allAnnualsettelment = await Annualsettelment.find({ employeeId })
+
+      .populate('employeeId') // Specify fields to populate
+      .sort({ _id: -1 }); // Sort in descending order by creation time
+      // Check if data exists for the given employeeId
+      if (!allAnnualsettelment || allAnnualsettelment.length === 0) {
+        return res.json({ message: "No annual settlements found for this employee." });
+      }
+  
+      // Respond with the data
+      res.status(200).json({ 
+        message: `Annual settlements for employee ID: ${employeeId}`, 
+        allAnnualsettelment 
+      });
+    } catch (error) {
+      // Catch and handle errors
+      console.error("Error fetching annual settlements:", error);
+      return next(error);
+    }
+  },
+  
   //----------------one employee------------------------
   async oneAnnualsettelment(req, res, next) {
     let oneAnnualsettelment;

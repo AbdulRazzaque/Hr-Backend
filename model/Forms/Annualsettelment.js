@@ -10,19 +10,10 @@ const annualsettelmentSchema = new Schema(
     subject: { type: String, require: true },
     to: { type: String, require: true },
     from: { type: String, require: true },
-    vacationStartDate: { type: Date, require: true },
-    joiningDate: { type: Date, require: true },
+    leaveStartDate: { type: Date, require: true },
+
     resumingVacation: { type: Date, require: true },
 
-    //---------------Prepared-----------------------
-    preparedName: { type: String, require: true },
-    preparedDate: { type: Date, require: true },
-    //-----------------HR--------------------
-    hrName: { type: String, require: true },
-    hrDate: { type: Date, require: true },
-    //--------------------Diretor------------------
-    directorName: { type: String, require: true },
-    directorDate: { type: Date, require: true },
   },
   { timestamps: true, toJSON: { getters: true } }
 );

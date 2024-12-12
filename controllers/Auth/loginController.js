@@ -7,7 +7,7 @@ const JWT = require("../../services/Jwt");
 const LoginSchema = {
   async login(req, res, next) {
     const loginSchema = Joi.object({
-      email: Joi.string().email().required(),
+      email: Joi.string().required(),
       password: Joi.string(),
     });
 
@@ -23,7 +23,7 @@ const LoginSchema = {
        loginUser = await User.findOne({ email: req.body.email });
 
       if (!loginUser) {
-        return next(Error("User and Password are not found"));
+        return next(Error('Invalid username or password'));
       }
     } catch (error) {
       return next(error);

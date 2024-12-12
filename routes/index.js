@@ -36,6 +36,7 @@ Route.get('/oneEndofservice/:id',endofServicesController.oneEndofservice)
 Route.post('/endofservices', auth,endofServicesController.endofservices)
 Route.put('/UpdateEndofservices/:id', auth,endofServicesController.UpdateEndofservices)
 Route.delete('/deleteEndofservice/:id', auth,endofServicesController.deleteEndofservice)
+Route.get('/getTotalExitEmployees',endofServicesController.getTotalExitEmployees)
 //-----------------------------enf of services----------------------------------------
 
 //=========================exit for leave======================================
@@ -44,6 +45,9 @@ Route.get('/oneExitofleave/:id',exitForLeaveController.oneExitofleave)
 Route.post('/exitofleave', auth,exitForLeaveController.exitofleave)
 Route.put('/updateExitofleave/:id', auth,exitForLeaveController.updateExitofleave)
 Route.delete('/deleteExitofleave/:id', auth,exitForLeaveController.deleteExitofleave)
+Route.get('/getEmployeeLeave/:employeeId', auth,exitForLeaveController.getEmployeeLeave)
+Route.get('/getEmployeeByIdExitLeave/:employeeId',exitForLeaveController.getEmployeeByIdExitLeave)
+Route.get('/getEmployeeLatestLeave/',exitForLeaveController.getEmployeeLatestLeave)
 //=====================================================================================
 
 //=========================Resume of work======================================
@@ -52,6 +56,7 @@ Route.get('/oneEmployeeResume/:id',EmployeeResumeController.oneEmployeeResume)
 Route.post('/EmployeeResume', auth,EmployeeResumeController.EmployeeResume)
 Route.put('/UpdateEmployeeResume/:id', auth,EmployeeResumeController.UpdateEmployeeResume)
 Route.delete('/deleteEmployeeResume/:id', auth,EmployeeResumeController.deleteEmployeeResume)
+Route.get('/getEmployeeResume/:employeeId', auth,EmployeeResumeController.getEmployeeResume)
 //=====================================================================================
 
 
@@ -70,5 +75,6 @@ Route.get('/allAnnualsettelment/',AnnualsettelmentController.allAnnualsettelment
 Route.post('/Annualsettelment', auth,AnnualsettelmentController.Annualsettelment)
 Route.put('/UpdateAnnualsettelment/:id', auth,AnnualsettelmentController.UpdateAnnualsettelment)
 Route.delete('/deleteAnnualsettelment/:id', auth,AnnualsettelmentController.deleteAnnualsettelment)
+Route.get('/getEmployeeAnnualSettlements/:employeeId',AnnualsettelmentController.getEmployeeAnnualSettlements)
 //=====================================================================================
 module.exports = Route;

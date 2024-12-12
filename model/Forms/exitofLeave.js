@@ -14,7 +14,7 @@ const exitofLeaveSchema = new Schema(
      numberOfDayLeave: { type: Number, require: true },
     lastLeaveStartDate: { type: Date, require: true },
     lastLeaveEndDate: { type: Date, require: true },
-    lastNumberOfDayLeave: { type: Date, require: true },
+    lastNumberOfDayLeave: { type: Number, require: true },
 
     // Asset and Loan Info
      bankLoan: { type: String, require: true },
@@ -25,7 +25,7 @@ const exitofLeaveSchema = new Schema(
      companySimCard: { type: String, require: true },
      companyLaptop: { type: String, require: true },
      tools: { type: String, require: true },
-     comment: { type: String, require: true },
+     comment: { type: String },
 
   },
   { timestamps: true, toJSON: { getters: true } }

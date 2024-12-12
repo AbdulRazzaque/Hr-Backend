@@ -32,11 +32,11 @@ const EmployeeResumeController = {
 // console.log(filePath,'llllllllllllllllllllll')
       const EmployeeResumeSchema = Joi.object({
         employeeId: Joi.objectId().required(), // ObjectId format
-        company: Joi.string().required(),
+        company: Joi.string().allow(null,''),
         leaveStartDate: Joi.date().required(),
-        leaveEndtDate: Joi.date().required(),
+        leaveEndDate: Joi.date().required(),
         resumeOfWorkDate: Joi.date().required(),
-        comment: Joi.string().required(),
+        comment: Joi.string().allow(null,''),
        
       });
 
@@ -54,7 +54,7 @@ const EmployeeResumeController = {
         employeeId ,
         company,
         leaveStartDate,
-        leaveEndtDate,
+        leaveEndDate,
         resumeOfWorkDate,
         comment
       } = req.body;
@@ -65,7 +65,7 @@ const EmployeeResumeController = {
         employeeId ,
         company,
         leaveStartDate,
-        leaveEndtDate,
+        leaveEndDate,
         resumeOfWorkDate,
         comment
         });
@@ -73,10 +73,10 @@ const EmployeeResumeController = {
         return next(error);
       }
 
-      res.status(201).json({ EmployeeResume: EmployeeResume });
+      res.status(201).json({ message: "Employee resume successfully", EmployeeResume: EmployeeResume });
     });
   },
-  //--------------------endos services.Api----------------------------
+  //--------------------ends services.Api----------------------------
   async UpdateEmployeeResume(req, res, next) {
     handleMultipartData(req, res, async (err) => {
       if (err) {
@@ -90,11 +90,11 @@ const EmployeeResumeController = {
 
       const UpdateEmployeeResumeSchema =Joi.object({
         employeeId: Joi.objectId().required(), // ObjectId format
-        company: Joi.string().required(),
+        company: Joi.string().allow(null,''),
         leaveStartDate: Joi.date().required(),
-        leaveEndtDate: Joi.date().required(),
+        leaveEndDate: Joi.date().required(),
         resumeOfWorkDate: Joi.date().required(),
-        comment: Joi.string().required(),
+        comment: Joi.string().allow(null,""),
       });
 
 
@@ -116,7 +116,7 @@ const EmployeeResumeController = {
         employeeId ,
         company,
         leaveStartDate,
-        leaveEndtDate,
+        leaveEndDate,
         resumeOfWorkDate,
         comment
       } = req.body;
@@ -131,7 +131,7 @@ const EmployeeResumeController = {
             employeeId ,
             company,
             leaveStartDate,
-            leaveEndtDate,
+            leaveEndDate,
             resumeOfWorkDate,
             comment
           },
@@ -194,6 +194,25 @@ const EmployeeResumeController = {
 
     res.json({ oneEmployeeResume: oneEmployeeResume });
   },
+
+  // get last exit Resume entry
+
+async getEmployeeResume(req,res,next){
+
+  try{
+      const {employeeId} = req.params
+      const leaves = await EmployeeResumeModel.find({employeeId}).sort({createdAt:-1})
+      if(leaves.length > 0){
+        //Get the most recent leave entry
+        const latestResume = leaves[0]
+        res.json(latestResume)
+      }else{
+        res.status(404).json({message:"No leave records found for this employee"})
+      }
+  }catch(error){
+    res.status(500).json({ message: 'Server error', error });
+  }
+}
   
 };
 

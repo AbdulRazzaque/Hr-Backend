@@ -3,6 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const Joi = require("joi");
 const ExitofLeave = require("../../model/Forms/exitofLeave");
+const exitofLeave = require("../../model/Forms/exitofLeave");
 
 
 const storage = multer.diskStorage({
@@ -51,7 +52,7 @@ const exitForLeaveController = {
         companySimCard: Joi.string().required(),
         companyLaptop: Joi.string().required(),
         tools: Joi.string().required(),
-        comment: Joi.string().required(),
+        comment: Joi.string().allow(null, ''), // Allow empty string and null
 
         //  avatar: Joi.string().required(),
       });
@@ -119,7 +120,8 @@ const exitForLeaveController = {
         return next(error);
       }
 
-      res.status(201).json({ exitofleave: exitofleave });
+      res.status(201).json({ message: "Exit leave successfully added", exitofleave: exitofleave });
+
     });
   },
   //--------------------updateApi----------------------------
@@ -154,7 +156,7 @@ const exitForLeaveController = {
         companySimCard: Joi.string().required(),
         companyLaptop: Joi.string().required(),
         tools: Joi.string().required(),
-        comment: Joi.string().required(),
+        comment: Joi.string().optional(),
       });
 
       const { error } = exitForLeaveSchema.validate(req.body);
@@ -254,6 +256,7 @@ async  deleteExitofleave(req, res, next) {
     let allExitofleave;
     try {
         allExitofleave = await ExitofLeave.find({})
+       
         .select("-__V -updatedAt")
         .sort({ _id: -1 });
 
@@ -276,6 +279,84 @@ async  deleteExitofleave(req, res, next) {
   //  res.status(200).send({msg:"success",result:response})
     res.json({ oneExitofleave: oneExitofleave });
   },
+
+
+  async getEmployeeByIdExitLeave(req,res,next){
+    const employeeId = req.params.employeeId;
+    try {
+      const allExitOfLeave = await ExitofLeave.find({employeeId})
+      .populate('employeeId')
+      .sort({_id: -1})
+      if(!allExitOfLeave || allExitOfLeave.length === 0){
+        return res.json({message:"NO exit leave found for this employee."})
+      }
+
+      res.status(200).json({
+        message: `Annual settlements for employee ID: ${employeeId}`, 
+        allExitOfLeave 
+      })
+    } catch (error) {
+      console.error("Error fetching annual settlements:", error);
+      return next(error);
+    }
+  },
+
+// get last exit leave entry
+
+async getEmployeeLeave(req,res,next){
+
+  try{
+      const {employeeId} = req.params
+      const leaves = await exitofLeave.find({employeeId}).sort({createdAt:-1})
+      if(leaves.length > 0){
+        //Get the most recent leave entry
+        const latestLeave  = leaves[0]
+        res.json(latestLeave)
+      }else{
+        res.status(404).json({message:"No leave records found for this employee"})
+      }
+  }catch(error){
+    res.status(500).json({ message: 'Server error', error });
+  }
+},
+
+async getEmployeeLatestLeave(req,res,next){
+
+  try {
+    const lastLeave = await exitofLeave.aggregate([
+      {$sort:{createdAt: -1}},
+      // Group by `employeeId` and keep only the latest document in each group
+      {
+        $group :{
+          _id:"$employeeId",
+          latestLeave :{$first:"$$ROOT"}
+        }
+      },
+      {
+        $replaceRoot:{newRoot:"$latestLeave"}
+      },
+      {
+        $lookup:{
+          from:"newEmployees",
+          localField:"employeeId",
+          foreignField:"_id",
+          as: "employeeDetails"
+        }
+      },
+     {
+      $unwind:{
+        path:"$employeeDetails",
+        preserveNullAndEmptyArrays: true // Keep documents even if no matching employee is found
+      }
+     }
+    ]);
+    res.json({lastLeave})
+  } catch (error) {
+    return next (error)
+  }
+}
+
+
 };
 
 module.exports = exitForLeaveController;

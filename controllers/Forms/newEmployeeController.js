@@ -248,7 +248,7 @@ const newEmployeeController = {
   //==================================================== Get All Employees API ====================================================
   async allEmployee(req, res, next) {
     try {
-      const allEmployees = await NewEmployee.find()
+      const allEmployees = await NewEmployee.find({status:"Active"})
         .select("-__v -updatedAt")
         .sort({ _id: -1 });
 
