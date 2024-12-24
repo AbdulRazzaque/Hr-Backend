@@ -76,7 +76,7 @@ const newEmployeeController = {
         passportDateOfExpiry: Joi.date().required(),
 
         // bloodGroup: Joi.string().required(),
-        employeeNumber: Joi.number().required(),
+        employeeNumber: Joi.string().required(),
         position: Joi.string().required(),
       });
 
@@ -118,7 +118,7 @@ const newEmployeeController = {
       handleMultipartData(req, res, async (err) => {
         if (err) return next(err);
   
-        console.log(req.body);
+ 
   
         // Safeguard against missing req.files
         const filePaths = {
@@ -179,7 +179,7 @@ const newEmployeeController = {
   
         // Send the updated employee data as response
         res.json({ message: 'Employee updated successfully', updatedEmployee });
-        console.log(updatedEmployee, 'updatedEmployee');
+     
       });
     } catch (error) {
       // Cleanup any uploaded files if an error occurs
@@ -275,7 +275,7 @@ const newEmployeeController = {
       const totalActiveEmployees = await NewEmployee.countDocuments({status:"Active"})
       res.json({totalActiveEmployees})
     } catch (error) {
-
+//  
       next(error)
     }
   }

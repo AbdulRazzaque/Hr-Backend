@@ -57,6 +57,7 @@ Route.post('/EmployeeResume', auth,EmployeeResumeController.EmployeeResume)
 Route.put('/UpdateEmployeeResume/:id', auth,EmployeeResumeController.UpdateEmployeeResume)
 Route.delete('/deleteEmployeeResume/:id', auth,EmployeeResumeController.deleteEmployeeResume)
 Route.get('/getEmployeeResume/:employeeId', auth,EmployeeResumeController.getEmployeeResume)
+Route.get('/getEmployeeResumeinfo/:employeeId',EmployeeResumeController.getEmployeeResumeinfo)
 //=====================================================================================
 
 
@@ -66,6 +67,7 @@ Route.get('/oneRprenewalform/:id',RprenewalformController.oneRprenewalform)
 Route.post('/Rprenewalform', auth,RprenewalformController.Rprenewalform)
 Route.put('/UpdateRprenewalform/:id', auth,RprenewalformController.UpdateRprenewalform)
 Route.delete('/deleteUpdateRprenewalform/:id', auth,RprenewalformController.deleteUpdateRprenewalform)
+Route.get('/getEmployeeByIdRpRenewal/:employeeId',RprenewalformController.getEmployeeByIdRpRenewal)
 //=====================================================================================
 
 

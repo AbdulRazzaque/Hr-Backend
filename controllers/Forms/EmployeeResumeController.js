@@ -32,7 +32,7 @@ const EmployeeResumeController = {
 // console.log(filePath,'llllllllllllllllllllll')
       const EmployeeResumeSchema = Joi.object({
         employeeId: Joi.objectId().required(), // ObjectId format
-        company: Joi.string().allow(null,''),
+       
         leaveStartDate: Joi.date().required(),
         leaveEndDate: Joi.date().required(),
         resumeOfWorkDate: Joi.date().required(),
@@ -52,7 +52,6 @@ const EmployeeResumeController = {
 
       const {
         employeeId ,
-        company,
         leaveStartDate,
         leaveEndDate,
         resumeOfWorkDate,
@@ -63,7 +62,6 @@ const EmployeeResumeController = {
       try {
         EmployeeResume = await EmployeeResumeModel.create({
         employeeId ,
-        company,
         leaveStartDate,
         leaveEndDate,
         resumeOfWorkDate,
@@ -90,7 +88,6 @@ const EmployeeResumeController = {
 
       const UpdateEmployeeResumeSchema =Joi.object({
         employeeId: Joi.objectId().required(), // ObjectId format
-        company: Joi.string().allow(null,''),
         leaveStartDate: Joi.date().required(),
         leaveEndDate: Joi.date().required(),
         resumeOfWorkDate: Joi.date().required(),
@@ -114,7 +111,6 @@ const EmployeeResumeController = {
 
       const {
         employeeId ,
-        company,
         leaveStartDate,
         leaveEndDate,
         resumeOfWorkDate,
@@ -129,7 +125,6 @@ const EmployeeResumeController = {
           { _id: req.params.id },
           {
             employeeId ,
-            company,
             leaveStartDate,
             leaveEndDate,
             resumeOfWorkDate,
@@ -147,26 +142,20 @@ const EmployeeResumeController = {
 
   //----------------------Delete Api--------------------------
   async deleteEmployeeResume(req, res, next) {
-    let deleteEmployeeResume;
+  
     try {
-        deleteEmployeeResume = await EmployeeResumeModel.findOneAndRemove({
+      let  deleteEmployeeResume = await EmployeeResumeModel.findOneAndRemove({
         _id: req.params.id,
       });
       if (!deleteEmployeeResume) {
         return next(Error("Noting to delete."));
       }
-      const avatarpath = deleteEmployeeResume.avatar;
-
-      fs.unlink(`${appRoot}/${avatarpath}`, (err) => {
-        if (err) {
-          return next(err);
-        }
-      });
+    
+      res.json({ deleteEmployeeResume: deleteEmployeeResume });
     } catch (error) {
       return next(error);
     }
 
-    res.json({ deleteEmployeeResume: deleteEmployeeResume });
   },
 //   //---------------------All Employee API -------------------------
   async allEmployeeResume(req, res, next) {
@@ -207,13 +196,38 @@ async getEmployeeResume(req,res,next){
         const latestResume = leaves[0]
         res.json(latestResume)
       }else{
-        res.status(404).json({message:"No leave records found for this employee"})
+        res.status(404).json({message:"No Resume records found for this employee"})
       }
   }catch(error){
     res.status(500).json({ message: 'Server error', error });
   }
-}
+},
   
+ async getEmployeeResumeinfo(req, res, next) {
+    const employeeId = req.params.employeeId; // Extract employee ID from request params
+    try {
+      
+      // Fetch data for the specific employee
+      const employeeResume = await EmployeeResumeModel.find({ employeeId })
+
+      .populate('employeeId') // Specify fields to populate
+      .sort({ _id: -1 }); // Sort in descending order by creation time
+      // Check if data exists for the given employeeId
+      if (!employeeResume || employeeResume.length === 0) {
+        return res.json({ message: "No annual settlements found for this employee." });
+      }
+  
+      // Respond with the data
+      res.status(200).json({ 
+        message: `Annual settlements for employee ID: ${employeeId}`, 
+        employeeResume 
+      });
+    } catch (error) {
+      // Catch and handle errors
+      console.error("Error fetching annual settlements:", error);
+      return next(error);
+    }
+  },
 };
 
 module.exports = EmployeeResumeController;

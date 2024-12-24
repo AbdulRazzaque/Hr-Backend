@@ -101,7 +101,7 @@ const AnnualsettelmentController = {
   //--------------------endos services.Api----------------------------
   async UpdateAnnualsettelment(req, res, next) {
     handleMultipartData(req, res, async (err) => {
-      console.log(req.body)
+      // console.log(req.body)
       if (err) {
         return next(err);
       }

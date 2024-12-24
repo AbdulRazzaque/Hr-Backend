@@ -220,7 +220,10 @@ const endofServicesController = {
   async oneEndofservice(req, res, next) {
     let oneEndofservice;
     try {
-        oneEndofservice = await EndofServices.findOne({})
+        oneEndofservice = await EndofServices.findOne({
+          _id:req.params.id,
+        })
+        .populate("employeeId")
         .select("-__V -updatedAt")
         .sort({ _id: -1 });
     } catch (error) {

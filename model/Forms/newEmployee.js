@@ -1,4 +1,3 @@
-
 const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
@@ -9,7 +8,7 @@ const newEmployeeSchema = new Schema(
     arabicName: { type: String, required: true },
     dateOfBirth: { type: Date, required: true },
     dateOfJoining: { type: Date, required: true },
-    mobileNumber: { type: Number, required: true },
+    mobileNumber: { type: String, required: true }, // Change to String for phone number format
     maritalStatus: { type: String, required: true },
     nationality: { type: String, required: true },
     department: { type: String, required: true },
@@ -27,8 +26,8 @@ const newEmployeeSchema = new Schema(
     visaType: { type: String, required: true },
 
     // Qatar ID Details
-    qatarID:{ type: Number,required: false },
-    qatarIdExpiry: { type: Date,required: false },
+    qatarID: { type: String, required: false },  // Change to String for Qatar ID
+    qatarIdExpiry: { type: Date, required: false },
 
     // Passport Details
     passportNumber: { type: String, required: true },
@@ -36,39 +35,79 @@ const newEmployeeSchema = new Schema(
     passportDateOfExpiry: { type: Date, required: true },
 
     // HR Purpose
-    employeeNumber: { type: Number, required: true },
+    employeeNumber: { type: String, required: true },
     position: { type: String, required: true },
-    status: {type: String,default: 'Active'}, 
-
-    // Image fields with URL formatting
+    status: { type: String, default: 'Active' },
+// kk
     employeeImage: {
       type: String,
-      required: true,
-      get: (employeeImage) => employeeImage && !employeeImage.startsWith('http') ? `${process.env.APP_URL}/${employeeImage}` : employeeImage
+      get: (employeeImage) => {
+        return employeeImage ? `${process.env.APP_URL}/${employeeImage}` : null;
+      },
+      set: (employeeImage) => {
+        if (employeeImage && employeeImage.startsWith(`${process.env.APP_URL}/`)) {
+          return employeeImage.replace(`${process.env.APP_URL}/`, '');
+        }
+        return employeeImage;
+      },
     },
+
     employeePassport: {
       type: String,
-      required: true,
-      get: (employeePassport) => employeePassport && !employeePassport.startsWith('http') ? `${process.env.APP_URL}/${employeePassport}` : employeePassport
+      get: (employeePassport) => {
+        return employeePassport ? `${process.env.APP_URL}/${employeePassport}` : null;
+      },
+      set: (employeePassport) => {
+        if (employeePassport && employeePassport.startsWith(`${process.env.APP_URL}/`)) {
+          return employeePassport.replace(`${process.env.APP_URL}/`, '');
+        }
+        return employeePassport;
+      },
     },
+
     employeeQatarID: {
       type: String,
-      required: true,
-      get: (employeeQatarID) => employeeQatarID && !employeeQatarID.startsWith('http') ? `${process.env.APP_URL}/${employeeQatarID}` : employeeQatarID
+      get: (employeeQatarID) => {
+        return employeeQatarID ? `${process.env.APP_URL}/${employeeQatarID}` : null;
+      },
+      set: (employeeQatarID) => {
+        if (employeeQatarID && employeeQatarID.startsWith(`${process.env.APP_URL}/`)) {
+          return employeeQatarID.replace(`${process.env.APP_URL}/`, '');
+        }
+        return employeeQatarID;
+      },
     },
+
     employeeContractCopy: {
       type: String,
-      required: true,
-      get: (employeeContractCopy) => employeeContractCopy && !employeeContractCopy.startsWith('http') ? `${process.env.APP_URL}/${employeeContractCopy}` : employeeContractCopy
+      get: (employeeContractCopy) => {
+        return employeeContractCopy ? `${process.env.APP_URL}/${employeeContractCopy}` : null;
+      },
+      set: (employeeContractCopy) => {
+        if (employeeContractCopy && employeeContractCopy.startsWith(`${process.env.APP_URL}/`)) {
+          return employeeContractCopy.replace(`${process.env.APP_URL}/`, '');
+        }
+        return employeeContractCopy;
+      },
     },
+
     employeeGraduationCertificate: {
       type: String,
-      required: true,
-      get: (employeeGraduationCertificate) => employeeGraduationCertificate && !employeeGraduationCertificate.startsWith('http') ? `${process.env.APP_URL}/${employeeGraduationCertificate}` : employeeGraduationCertificate
-    }
+      get: (employeeGraduationCertificate) => {
+        return employeeGraduationCertificate ? `${process.env.APP_URL}/${employeeGraduationCertificate}` : null;
+      },
+      set: (employeeGraduationCertificate) => {
+        if (
+          employeeGraduationCertificate &&
+          employeeGraduationCertificate.startsWith(`${process.env.APP_URL}/`)
+        ) {
+          return employeeGraduationCertificate.replace(`${process.env.APP_URL}/`, '');
+        }
+        return employeeGraduationCertificate;
+      },
+    },
   },
   { timestamps: true, toJSON: { getters: true } }
 );
-
 
 module.exports = mongoose.model("NewEmployee", newEmployeeSchema, "newEmployees");

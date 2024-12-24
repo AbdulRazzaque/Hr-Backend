@@ -234,6 +234,26 @@ const RprenewalformController = {
 
     res.json({ oneRprenewalform: oneRprenewalform });
   },
+    async getEmployeeByIdRpRenewal(req,res,next){
+      const employeeId = req.params.employeeId;
+      try {
+        const rpRenewal = await RprenewalformModel.find({employeeId})
+        .populate('employeeId')
+        .sort({_id: -1})
+        if(!rpRenewal || rpRenewal.length === 0){
+          return res.json({message:"NO exit RP Renewal found for this employee."})
+        }
+  
+        res.status(200).json({
+          message: `RP Renewal  for employee ID: ${employeeId}`, 
+          rpRenewal 
+        })
+      } catch (error) {
+        console.error("Error fetching annual RP Renewal:", error);
+        return next(error);
+      }
+    },
+  
   
 };
 

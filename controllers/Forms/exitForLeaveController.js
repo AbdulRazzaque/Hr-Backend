@@ -320,39 +320,42 @@ async getEmployeeLeave(req,res,next){
   }
 },
 
-async getEmployeeLatestLeave(req,res,next){
-
+async getEmployeeLatestLeave(req, res, next) {
   try {
     const lastLeave = await exitofLeave.aggregate([
-      {$sort:{createdAt: -1}},
-      // Group by `employeeId` and keep only the latest document in each group
+      { $sort: { createdAt: -1 } },
       {
-        $group :{
-          _id:"$employeeId",
-          latestLeave :{$first:"$$ROOT"}
+        $group: {
+          _id: "$employeeId",
+          latestLeave: { $first: "$$ROOT" }
         }
       },
+      { $replaceRoot: { newRoot: "$latestLeave" } },
       {
-        $replaceRoot:{newRoot:"$latestLeave"}
-      },
-      {
-        $lookup:{
-          from:"newEmployees",
-          localField:"employeeId",
-          foreignField:"_id",
+        $lookup: {
+          from: "newEmployees",
+          localField: "employeeId",
+          foreignField: "_id",
           as: "employeeDetails"
         }
       },
-     {
-      $unwind:{
-        path:"$employeeDetails",
-        preserveNullAndEmptyArrays: true // Keep documents even if no matching employee is found
+      {
+        $unwind: {
+          path: "$employeeDetails",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $match: {
+          "employeeDetails.status": "Active"
+        }
       }
-     }
     ]);
-    res.json({lastLeave})
+
+    res.json({ lastLeave });
   } catch (error) {
-    return next (error)
+    console.error('❌ Error:', error);
+    return next(error);
   }
 }
 
