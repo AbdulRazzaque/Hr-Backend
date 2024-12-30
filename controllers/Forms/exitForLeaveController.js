@@ -4,6 +4,7 @@ const path = require("path");
 const Joi = require("joi");
 const ExitofLeave = require("../../model/Forms/exitofLeave");
 const exitofLeave = require("../../model/Forms/exitofLeave");
+const newEmployee = require("../../model/Forms/newEmployee");
 
 
 const storage = multer.diskStorage({
@@ -352,10 +353,100 @@ async getEmployeeLatestLeave(req, res, next) {
       }
     ]);
 
-    res.json({ lastLeave });
+    // Ensure getters are applied
+    const updatedLastLeave = lastLeave.map((leave) => {
+      if (leave.employeeDetails) {
+        // Convert employeeDetails to a Mongoose Document and apply getters
+        const employeeDoc = new newEmployee(leave.employeeDetails);
+        leave.employeeDetails = employeeDoc.toJSON({ getters: true });
+      } 
+      return leave;
+    });
+
+    res.json({ lastLeave: updatedLastLeave });  
   } catch (error) {
     console.error('❌ Error:', error);
     return next(error);
+  }
+},
+
+async getLeaveByDate(req,res,next){
+  try { 
+   
+    const {startDate,endDate} = req.query;
+    
+    // Validate required query Parameters
+    if(!startDate,!endDate){ 
+      return res.status(400).json({
+        success:false,
+        message:"Please provide both StartDate and end Date in the query parameters.",
+      });
+    }
+
+    //Parse dates 
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    start.setHours(0, 0, 0, 0); // Start of the day in local time
+    end.setHours(23, 59, 59, 999); // End of the day in local time 
+    const leaves = await exitofLeave.aggregate([
+      { 
+        $match: {
+          leaveStartDate: { $gte: start },
+          leaveEndDate: { $lte: end },
+        },
+      },
+      {
+        $lookup: {
+          from: 'newEmployees',
+          localField: 'employeeId',
+          foreignField: '_id',
+          as: 'employeeDetails',
+        },
+      },
+      {
+        $unwind: {
+          path: '$employeeDetails',
+          preserveNullAndEmptyArrays: false, // Remove records without an employee match
+        }, 
+      },
+      {
+        $match: {
+          'employeeDetails.status': 'Active',
+        },
+      },
+      {
+        $project: {
+          leaveType: 1,
+          leaveStartDate: 1,
+          leaveEndDate: 1,
+          numberOfDayLeave:1,
+          lastNumberOfDayLeave:1,
+          status: 1,
+          createdAt: 1,
+          employeeDetails: 1, // Retain renamed field
+          
+        },
+      },
+    ]);
+      // Ensure getters are applied
+      const EmployeeLeave = leaves.map((leave) => {
+        if (leave.employeeDetails) {
+          // Convert employeeDetails to a Mongoose Document and apply getters
+          const employeeDoc = new newEmployee(leave.employeeDetails);
+          leave.employeeDetails = employeeDoc.toJSON({ getters: true });
+        } 
+        return leave;
+      });
+  return res.status(200).json({ 
+    success: true,
+    message: 'Leaves fetched successfully.',
+    data: EmployeeLeave,
+  });
+  
+  } catch (error) {
+    console.error('❌ Error:', error);
+    return next(error)
+    
   }
 }
 

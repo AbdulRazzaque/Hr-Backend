@@ -1,4 +1,6 @@
 const express = require('express');
+const multer = require('multer')
+const upload = multer(); // Default memory storage
 const registerSchema = require('../controllers/Auth/registerController');
 const LoginSchema = require('../controllers/Auth/loginController');
 const userController = require('../controllers/Auth/userController');
@@ -9,6 +11,7 @@ const exitForLeaveController = require('../controllers/Forms/exitForLeaveControl
 const EmployeeResumeController = require('../controllers/Forms/EmployeeResumeController');
 const RprenewalformController = require('../controllers/Forms/RprenewalformController');
 const AnnualsettelmentController = require('../controllers/Forms/AnnualsettelmentController');
+const WarningFormController = require('../controllers/Forms/WarningController');
 
 
 
@@ -48,6 +51,7 @@ Route.delete('/deleteExitofleave/:id', auth,exitForLeaveController.deleteExitofl
 Route.get('/getEmployeeLeave/:employeeId', auth,exitForLeaveController.getEmployeeLeave)
 Route.get('/getEmployeeByIdExitLeave/:employeeId',exitForLeaveController.getEmployeeByIdExitLeave)
 Route.get('/getEmployeeLatestLeave/',exitForLeaveController.getEmployeeLatestLeave)
+Route.get('/getLeaveByDate',exitForLeaveController.getLeaveByDate)
 //=====================================================================================
 
 //=========================Resume of work======================================
@@ -79,4 +83,12 @@ Route.put('/UpdateAnnualsettelment/:id', auth,AnnualsettelmentController.UpdateA
 Route.delete('/deleteAnnualsettelment/:id', auth,AnnualsettelmentController.deleteAnnualsettelment)
 Route.get('/getEmployeeAnnualSettlements/:employeeId',AnnualsettelmentController.getEmployeeAnnualSettlements)
 //=====================================================================================
+ 
+//=========================Warning======================================
+Route.post('/addWarning/',upload.none(), WarningFormController.addWarning)
+Route.put('/updateWarning/:id',upload.none(), WarningFormController.updateWarning)
+Route.delete('/deleteWarning/:id', WarningFormController.deleteWarning)  
+Route.get('/allWarning', WarningFormController.allWarning)    
+Route.get('/getEmployeeByIdWarning/:id', WarningFormController.getEmployeeByIdWarning) 
+
 module.exports = Route;
