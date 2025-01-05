@@ -12,6 +12,8 @@ const EmployeeResumeController = require('../controllers/Forms/EmployeeResumeCon
 const RprenewalformController = require('../controllers/Forms/RprenewalformController');
 const AnnualsettelmentController = require('../controllers/Forms/AnnualsettelmentController');
 const WarningFormController = require('../controllers/Forms/WarningController');
+const setUpQatarIdExpiryJob = require('../controllers/Forms/notificationController');
+const notificationController = require('../controllers/Forms/notificationController');
 
 
 
@@ -90,5 +92,10 @@ Route.put('/updateWarning/:id',upload.none(), WarningFormController.updateWarnin
 Route.delete('/deleteWarning/:id', WarningFormController.deleteWarning)  
 Route.get('/allWarning', WarningFormController.allWarning)    
 Route.get('/getEmployeeByIdWarning/:id', WarningFormController.getEmployeeByIdWarning) 
+
+//=========================Notification======================================
+Route.get('/getNotification/', notificationController.getNotification) 
+Route.put('/markAsRead/:id', notificationController.markAsRead) 
+
 
 module.exports = Route;

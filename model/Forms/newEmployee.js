@@ -38,7 +38,7 @@ const newEmployeeSchema = new Schema(
     employeeNumber: { type: String, required: true },
     position: { type: String, required: true },
     status: { type: String, default: 'Active' },
-// kk
+    notified: { type: Boolean, default: false }, // Field to track if notification has been sent
     employeeImage: {
       type: String,
       get: (employeeImage) => {
