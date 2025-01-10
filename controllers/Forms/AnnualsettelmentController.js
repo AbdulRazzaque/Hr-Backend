@@ -98,7 +98,7 @@ const AnnualsettelmentController = {
       
     });
   },
-  //--------------------endos services.Api----------------------------
+  //--------------------end of services.Api----------------------------
   async UpdateAnnualsettelment(req, res, next) {
     handleMultipartData(req, res, async (err) => {
       // console.log(req.body)

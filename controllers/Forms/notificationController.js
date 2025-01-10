@@ -6,11 +6,10 @@ const notificationController = {
      /** 
      * 🔔 Qatar ID Expiry Notification via Cron Job
      */
-     async setUpExpiryNotifications(io) {
+     async setUpExpiryNotifications(io) {  
         cron.schedule('0 6 * * *', async () => { // Schedule the task to run every day at 6:00 AM
-            try {
-                console.log('🔄 Checking for Qatar ID Expiry Notifications...');
- 
+              try { 
+                console.log('🔄 Checking for Qatar ID Expiry Notifications...'); 
                 const currentDate = moment().startOf('day'); // Current date at midnight
                 const tomorrowDate = moment(currentDate).add(1, 'days'); // Tomorrow
                 const twoMonthsLater = moment(currentDate).add(2, 'months'); // Two months later
