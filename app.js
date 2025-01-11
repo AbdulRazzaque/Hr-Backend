@@ -28,7 +28,7 @@ global.appRoot = path.resolve(__dirname);
 
 // 📌 MongoDB Connection
 mongoose
-  .connect(process.env.BATA_BASE_CONNECTION, {
+  .connect(process.env.DATA_BASE_CONNECTION, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })

@@ -14,6 +14,7 @@ const AnnualsettelmentController = require('../controllers/Forms/Annualsettelmen
 const WarningFormController = require('../controllers/Forms/WarningController');
 const setUpQatarIdExpiryJob = require('../controllers/Forms/notificationController');
 const notificationController = require('../controllers/Forms/notificationController');
+const AbsenceLeaveController = require('../controllers/Forms/AbsenceLeaveController');
 
 
 
@@ -91,6 +92,13 @@ Route.post('/addWarning/',upload.none(), WarningFormController.addWarning)
 Route.put('/updateWarning/:id',upload.none(), WarningFormController.updateWarning)
 Route.delete('/deleteWarning/:id', WarningFormController.deleteWarning)  
 Route.get('/allWarning', WarningFormController.allWarning)    
+Route.get('/getEmployeeByIdWarning/:id', WarningFormController.getEmployeeByIdWarning) 
+
+//=========================AbsenceLeave======================================
+Route.post('/AbsenceLeave/',upload.none(), AbsenceLeaveController.AbsenceLeave)
+Route.put('/updateAbsenceLeave/:id',upload.none(), AbsenceLeaveController.updateAbsenceLeave)
+Route.delete('/deleteAbsence/:id', AbsenceLeaveController.deleteAbsence)  
+Route.get('/AllAbsenceLeave', AbsenceLeaveController.AllAbsenceLeave)    
 Route.get('/getEmployeeByIdWarning/:id', WarningFormController.getEmployeeByIdWarning) 
 
 //=========================Notification======================================
