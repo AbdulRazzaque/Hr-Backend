@@ -7,7 +7,7 @@ const AbsenceLeaveSchema = new Schema({
     date:{type:Date,require:true},
     leaveType:{type:String,require:true},
     leaveStartDate:{type:Date},
-    leaveEndDate:{type:Date},
+    leaveEndDate:{type:Date}, 
     totalSickLeaveDays:{type:Number},
     totalAbsenceLeaveDays:{type:Number},
     comment:{type:String}

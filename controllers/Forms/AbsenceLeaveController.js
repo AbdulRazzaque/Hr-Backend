@@ -7,15 +7,16 @@ const newEmployee = require("../../model/Forms/newEmployee");
 const AbsenceLeaveController ={
     
     async AbsenceLeave(req,res,next){
+ 
         const AbsenceLeaveSchema = Joi.object({
             employeeId: Joi.objectId().required(), // ObjectId format
             date:Joi.date().required(),
             leaveType:Joi.string().required(),
             leaveStartDate:Joi.date().allow(null,''),
             leaveEndDate:Joi.date().allow(null,''),
-            totalSickLeaveDays:Joi.number.allow(null,""),
-            totalAbsenceLeaveDays:Joi.number.allow(null,""),
-            comment:Joi.string.allow(null,'')
+            totalSickLeaveDays:Joi.number().allow(null,""),
+            totalAbsenceLeaveDays:Joi.number().allow(null,""),
+            comment:Joi.string().allow(null,'')
         })
       
         const error = AbsenceLeaveSchema.validate(req.body);
@@ -33,7 +34,7 @@ const AbsenceLeaveController ={
             }
             let AbsenceLeave = await AbsenceLeaveModule.create({
                 employeeId,
-                data,
+                date,
                 leaveType,
                 leaveStartDate,
                 leaveEndDate,
@@ -45,6 +46,7 @@ const AbsenceLeaveController ={
                 message:`Leave successfully added for ${employee.name}`,
                 AbsenceLeave
             })
+            console.log(AbsenceLeave)
         } catch (error) {
             return next(error)
             
@@ -97,7 +99,8 @@ const AbsenceLeaveController ={
             
         }
     },
-
+ 
+ 
     async AllAbsenceLeave(req,res,next){
 
         try {
@@ -110,7 +113,7 @@ const AbsenceLeaveController ={
     },
     async getEmployeeAbsenceLeave (req,res,next){
 
-        const employeeId = req.params.employeeId;
+        const employeeId = req.params.id;
         try {
             
             const getEmployeeAbsence = await AbsenceLeaveModule.find({employeeId})
