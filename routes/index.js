@@ -100,6 +100,7 @@ Route.put('/updateAbsenceLeave/:id',upload.none(), AbsenceLeaveController.update
 Route.delete('/deleteAbsence/:id', AbsenceLeaveController.deleteAbsence)  
 Route.get('/AllAbsenceLeave', AbsenceLeaveController.AllAbsenceLeave)    
 Route.get('/getEmployeeAbsenceLeave/:id', AbsenceLeaveController.getEmployeeAbsenceLeave) 
+Route.get('/getTotalSickLeave/:id', AbsenceLeaveController.getTotalSickLeave) 
 
 //=======================================Notification=================================================================
 Route.get('/getNotification/', notificationController.getNotification) 
