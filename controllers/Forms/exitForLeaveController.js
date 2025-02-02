@@ -5,7 +5,7 @@ const Joi = require("joi");
 const ExitofLeave = require("../../model/Forms/exitofLeave");
 const exitofLeave = require("../../model/Forms/exitofLeave");
 const newEmployee = require("../../model/Forms/newEmployee");
-
+const moment = require('moment')
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, "uploads/"),
@@ -314,14 +314,29 @@ async getEmployeeLeave(req,res,next){
         const latestLeave  = leaves[0]
         res.json(latestLeave)
       }else{
-        res.status(404).json({message:"No leave records found for this employee"})
+        res.json({message:"No leave records found for this employee"})
       }
   }catch(error){
     res.status(500).json({ message: 'Server error', error });
   }
 },
 
+async CheckEligibleEmployee(req,res,next){
+  const id = req.params.id
+  const fiveYearsLater = moment().subtract(5, 'years'); // Date 5 years ago
+  const employee = await newEmployee.find({_id:id});
+  if(!employee){
+    return res.status(404).json({ message: "Employee not found" });
+  }
+
+  const eligibilityMessage = moment(employee[0].dateOfJoining).isBefore(fiveYearsLater)
+  ? " eligible for 28 days of leave"
+  : " eligible for 21 days of leave";
+  return res.send(eligibilityMessage)
+} ,
+
 async getEmployeeLatestLeave(req, res, next) {
+  
   try {
     const lastLeave = await exitofLeave.aggregate([
       { $sort: { createdAt: -1 } },

@@ -38,7 +38,8 @@ mongoose
 // 📌 Socket.io Setup
 const io = socketIo(server, {
   cors: {
-    origin: 'http://192.168.1.98:3000', // Client Origin (Adjust for Production)
+    // origin: 'http://192.168.1.10:778', // Server Side
+    origin: 'http://192.168.1.98:3000', // Local Side)
     methods: ['GET', 'POST'],
   }, 
 });

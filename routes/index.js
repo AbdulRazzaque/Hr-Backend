@@ -55,6 +55,7 @@ Route.get('/getEmployeeLeave/:employeeId', auth,exitForLeaveController.getEmploy
 Route.get('/getEmployeeByIdExitLeave/:employeeId',exitForLeaveController.getEmployeeByIdExitLeave)
 Route.get('/getEmployeeLatestLeave/',exitForLeaveController.getEmployeeLatestLeave)
 Route.get('/getLeaveByDate',exitForLeaveController.getLeaveByDate)
+Route.get('/CheckEligibleEmployee/:id',exitForLeaveController.CheckEligibleEmployee)
 //=====================================================================================
 
 //=========================Resume of work======================================
