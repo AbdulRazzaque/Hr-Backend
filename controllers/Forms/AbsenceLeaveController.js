@@ -118,6 +118,7 @@ const AbsenceLeaveController ={
             
         }
     },
+
     async getEmployeeAbsenceLeave (req,res,next){
 
         const employeeId = req.params.id;
