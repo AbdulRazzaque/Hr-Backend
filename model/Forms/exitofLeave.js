@@ -15,7 +15,8 @@ const exitofLeaveSchema = new Schema(
     lastLeaveStartDate: { type: Date, require: true },
     lastLeaveEndDate: { type: Date, require: true },
     lastNumberOfDayLeave: { type: Number, require: true },
-
+    // Array to track previous leave end dates
+    previousLeaveEndDate: { type: Date },
     // Asset and Loan Info
      bankLoan: { type: String, require: true },
      personalLoan: { type: String, require: true },

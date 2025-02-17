@@ -127,7 +127,9 @@ const exitForLeaveController = {
   },
   //--------------------updateApi----------------------------
   async updateExitofleave(req, res, next) {
+    console.log(req.body)
     handleMultipartData(req, res, async (err) => {
+      console.log(req.body)
       if (err) {
         return next(err);
       }
@@ -196,11 +198,21 @@ const exitForLeaveController = {
         comment,
       } = req.body;
 
-      let updateExitofleave;
+    
       try {
-        updateExitofleave = await ExitofLeave.findOneAndUpdate(
+
+        const existingLeave = await ExitofLeave.findById(req.params.id)
+        if(!existingLeave) {
+          return res.send({message:"Leave recode not fond"})
+        }
+        // update the entry while storing the previous leaveEndDate
+      const  updateExitOfLeave = await ExitofLeave.findOneAndUpdate(
           { _id: req.params.id },
           {
+          
+          
+         $set: {
+          previousLeaveEndDate: existingLeave.leaveEndDate, // Store old value
             employeeId,
             date,
             leaveType,
@@ -222,13 +234,14 @@ const exitForLeaveController = {
             tools,
             comment,
           },
+        },
           { new: true }
         );
+        res.status(201).json({ updateExitOfLeave });
       } catch (error) {
         return next(error);
       }
 
-      res.status(201).json({ updateExitofleave: updateExitofleave });
     });
   },
 
