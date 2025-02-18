@@ -127,9 +127,7 @@ const exitForLeaveController = {
   },
   //--------------------updateApi----------------------------
   async updateExitofleave(req, res, next) {
-    console.log(req.body)
     handleMultipartData(req, res, async (err) => {
-      console.log(req.body)
       if (err) {
         return next(err);
       }
@@ -410,7 +408,7 @@ async getLeaveByDate(req,res,next){
         message:"Please provide both StartDate and end Date in the query parameters.",
       });
     }
-
+ 
     //Parse dates 
     const start = new Date(startDate);
     const end = new Date(endDate);
