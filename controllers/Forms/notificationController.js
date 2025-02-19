@@ -5,9 +5,9 @@ const moment = require('moment');
 const notificationController = {
      /** 
      * 🔔 Qatar ID Expiry Notification via Cron Job
-     */
+     */ 
      async setUpExpiryNotifications(io) {  
-        cron.schedule('0 6 * * *', async () => { // Schedule the task to run every day at 6:00 AM
+        cron.schedule('* * * * *', async () => { // Schedule the task to run every day at 6:00 AM
               try { 
                 console.log('🔄 Checking for Qatar ID Expiry Notifications...'); 
                 const currentDate = moment().startOf('day'); // Current date at midnight
@@ -22,18 +22,18 @@ const notificationController = {
                         { passportDateOfExpiry: { $lte: twoMonthsLater.toDate(), $gte: currentDate.toDate() } },
                         { probationDate: { $lte: tomorrowDate.toDate(), $gte: currentDate.toDate() } },
                     ]
-                });
+                }); 
 
                 for (const employee of employees) {
                     // Qatar ID Expiry Notification (2 Months Before Expiry)
                     if (employee.qatarIdExpiry && moment(employee.qatarIdExpiry).isBetween(currentDate, twoMonthsLater, 'days', '[]')) {
-                        let qatarNotificationMessage = `🔔 Reminder: ${employee.name}'s Qatar ID will expire on ${moment(employee.qatarIdExpiry).format('DD/MM/YYYY')}. Please take necessary actions in advance.`;
+                        let qatarNotificationMessage = `🔔 Reminder: ${employee.name}'s Qatar ID will expire on ${moment(employee.qatarIdExpiry).format('DD/MM/YYYY')}.`;
                         await this.sendExpiryNotification(io, employee, qatarNotificationMessage);
                     }
 
                     // Passport Expiry Notification
                     if (employee.passportDateOfExpiry && moment(employee.passportDateOfExpiry).isBetween(currentDate, twoMonthsLater, 'days', '[]')) {
-                        let passportNotificationMessage = `🔔 Reminder: ${employee.name}'s Passport will expire on ${moment(employee.passportDateOfExpiry).format('DD/MM/YYYY')}. Please take necessary actions.`;
+                        let passportNotificationMessage = `🔔 Reminder: ${employee.name}'s Passport will expire on ${moment(employee.passportDateOfExpiry).format('DD/MM/YYYY')}.`;
                         await this.sendExpiryNotification(io, employee, passportNotificationMessage);
                     }
 
