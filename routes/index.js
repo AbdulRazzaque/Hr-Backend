@@ -15,6 +15,8 @@ const WarningFormController = require('../controllers/Forms/WarningController');
 const setUpQatarIdExpiryJob = require('../controllers/Forms/notificationController');
 const notificationController = require('../controllers/Forms/notificationController');
 const AbsenceLeaveController = require('../controllers/Forms/AbsenceLeaveController');
+const departmentController = require('../controllers/Forms/departmentController');
+const positionController = require('../controllers/Forms/positionController');
 
 
 
@@ -107,5 +109,14 @@ Route.get('/getTotalSickLeave/:id', AbsenceLeaveController.getTotalSickLeave)
 Route.get('/getNotification/', notificationController.getNotification) 
 Route.put('/markAsRead/:id', notificationController.markAsRead) 
 
+
+//=========================Department======================================
+Route.post('/addDepartment/',upload.none(), departmentController.addDepartment)
+Route.delete('/deleteDepartment/:id', departmentController.deleteDepartment)  
+Route.get('/allDepartment', departmentController.allDepartment)    
+//=========================Department======================================
+Route.post('/addPosition/',upload.none(), positionController.addPosition)
+Route.delete('/deletePosition/:id', positionController.deletePosition)  
+Route.get('/allPosition', positionController.allPosition)    
 
 module.exports = Route;

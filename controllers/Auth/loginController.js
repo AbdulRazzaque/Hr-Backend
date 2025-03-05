@@ -3,7 +3,7 @@ const User = require("../../model/authmodle/user");
 const bcrypt = require("bcrypt");
 const JWT = require("../../services/Jwt");
 
- 
+
 const LoginSchema = {
   async login(req, res, next) {
     const loginSchema = Joi.object({
