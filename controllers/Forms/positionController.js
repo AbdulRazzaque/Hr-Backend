@@ -29,7 +29,40 @@ const positionController ={
             return next(error)
         }
     },
-
+    async updatePosition(req,res,next){
+        console.log(req.body) 
+        try {
+            const positionSchema = Joi.object({
+                position:Joi.string().required()
+            })
+    
+            const {error} = positionSchema.validate(req.body);
+    
+            if(error){
+                return next(error)
+            }
+    
+            const {position} = req.body;
+            console.log(position,'get req body')
+            
+                let updatePosition = await positionModule.findOneAndUpdate(
+                    {_id:req.params.id},
+                    {position},
+                    {new:true}
+                );
+                if(!updatePosition){
+                    return res.json({message:"Position not found"})
+                }
+                res.status(201).json({
+                    message:`successfully created`,
+                    updatePosition
+                })
+            }
+        catch (error) {
+            return next(error)
+        }
+    
+    },
     async deletePosition (req,res,next){
 
         try {

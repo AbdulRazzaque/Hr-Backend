@@ -112,11 +112,13 @@ Route.put('/markAsRead/:id', notificationController.markAsRead)
 
 //=========================Department======================================
 Route.post('/addDepartment/',upload.none(), departmentController.addDepartment)
+Route.put('/updateDepartment/:id',upload.none(), departmentController.updateDepartment)
 Route.delete('/deleteDepartment/:id', departmentController.deleteDepartment)  
 Route.get('/allDepartment', departmentController.allDepartment)    
 //=========================Department======================================
 Route.post('/addPosition/',upload.none(), positionController.addPosition)
+Route.put('/updatePosition/:id',upload.none(), positionController.updatePosition)   
 Route.delete('/deletePosition/:id', positionController.deletePosition)  
 Route.get('/allPosition', positionController.allPosition)    
-
+ 
 module.exports = Route;

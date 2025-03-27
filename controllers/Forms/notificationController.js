@@ -39,7 +39,7 @@ const notificationController = {
 
                     // Probation Date Notification
                     if (employee.probationDate && moment(employee.probationDate).isBetween(currentDate, tomorrowDate, 'days', '[]')) {
-                        let probationNotificationMessage = `🔔 Reminder: ${employee.name}'s probation period is ending on ${moment(employee.probationDate).format('DD/MM/YYYY')}. Please take necessary actions.`;
+                        let probationNotificationMessage = `🔔 Reminder: ${employee.name}'s probation period is ending on ${moment(employee.probationDate).format('DD/MM/YYYY')}.`;
                         await this.sendExpiryNotification(io, employee, probationNotificationMessage);
                     }
                 }

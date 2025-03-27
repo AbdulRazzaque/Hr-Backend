@@ -30,6 +30,39 @@ const departmentController ={
         }
     },
 
+    async updateDepartment (req,res,next){
+       
+        try {
+            const departmentSchema = Joi.object({
+                department:Joi.string().required()
+            });
+    
+            const {error} = departmentSchema.validate(req.body);
+            
+        if(error){
+            return next(error)
+        }
+ 
+        const {department} = req.body;
+        
+        let updateDepartment = await departmentModule.findOneAndUpdate(
+            {_id:req.params.id},
+            {department},
+            {new:true}
+        );
+        
+        if(!updateDepartment){
+            return res.json({message:"Department not found"})
+        }
+        res.status(201).json({
+            message:`successfully created`,
+            updateDepartment
+        })
+        } catch (error) {
+            return next (error)
+        }
+    },
+
     async deleteDepartment (req,res,next){
         try {
             let deleteDepartment = await departmentModule.findByIdAndRemove({
