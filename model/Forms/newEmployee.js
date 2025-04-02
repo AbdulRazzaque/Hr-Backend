@@ -28,6 +28,7 @@ const newEmployeeSchema = new Schema(
     // Qatar ID Details
     qatarID: { type: String, required: false },  // Change to String for Qatar ID
     qatarIdExpiry: { type: Date, required: false },
+    idDesignation: { type: String, required: false },  // Change to String for Qatar ID
 
     // Passport Details
     passportNumber: { type: String, required: true },

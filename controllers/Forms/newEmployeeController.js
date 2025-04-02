@@ -59,6 +59,7 @@ const newEmployeeController = {
         // Allow qatarID and qatarIdExpiry to be optional
             qatarID: Joi.number().allow(null, ''),
             qatarIdExpiry: Joi.date().allow(null, ''),
+            idDesignation: Joi.string().allow(null, ''),
 
         probationDate: Joi.date().required(),
         probationMonthofNumber: Joi.number().required(),
