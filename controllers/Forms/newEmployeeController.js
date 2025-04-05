@@ -50,8 +50,8 @@ const newEmployeeController = {
         arabicName: Joi.string().required(),
         dateOfBirth: Joi.date().required(),
         dateOfJoining: Joi.date().required(),
-        mobileNumber: Joi.number().required(),
-        maritalStatus: Joi.string().required(),
+        mobileNumber: Joi.number().allow(null, ''),
+        maritalStatus: Joi.string().allow(null, ''),
         nationality: Joi.string().required(),
         department: Joi.string().required(),
 
@@ -71,14 +71,16 @@ const newEmployeeController = {
         otherAmount: Joi.number().required(),
         visaType: Joi.string().required(),
 
-        passportNumber: Joi.string().required(),
-        passportDateOfIssue: Joi.date().required(),
+        passportNumber: Joi.string().allow(null, ''),
+        passportDateOfIssue: Joi.date().allow(null, ''),
         // passportPlaceOfIssue: Joi.string().required(),
-        passportDateOfExpiry: Joi.date().required(),
+        passportDateOfExpiry: Joi.date().allow(null, ''),
 
         // bloodGroup: Joi.string().required(),
-        employeeNumber: Joi.string().required(),
-        position: Joi.string().required(),
+        employeeNumber: Joi.string().allow(null, ''),
+        position: Joi.string().required().messages({
+          'any.required': 'position is required',
+        }),
       });
 
       const { error } = EmployeeSchema.validate(req.body);
@@ -88,8 +90,9 @@ const newEmployeeController = {
           if (filePath) {
             fs.unlinkSync(filePath); // Delete only if file path exists
           }
-        });
-        return next(error);
+        });   
+        // return next(error);
+        return res.status(400).json({ message: error.details[0].message });
       }
       try {
         const newEmployee = await NewEmployee.create({

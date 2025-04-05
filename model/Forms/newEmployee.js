@@ -4,40 +4,40 @@ const Schema = mongoose.Schema;
 const newEmployeeSchema = new Schema(
   {
     // New Employee Info
-    name: { type: String, required: true },
-    arabicName: { type: String, required: true },
-    dateOfBirth: { type: Date, required: true },
-    dateOfJoining: { type: Date, required: true },
-    mobileNumber: { type: String, required: true }, // Change to String for phone number format
-    maritalStatus: { type: String, required: true },
-    nationality: { type: String, required: true },
-    department: { type: String, required: true },
+    name: { type: String,  },
+    arabicName: { type: String,  },
+    dateOfBirth: { type: Date,  },
+    dateOfJoining: { type: Date,  },
+    mobileNumber: { type: String,  }, // Change to String for phone number format
+    maritalStatus: { type: String,  },
+    nationality: { type: String,  },
+    department: { type: String,  },
 
     // Probation Period
-    probationMonthofNumber: { type: Number, required: true },
-    probationDate: { type: Date, required: true },
-    probationAmount: { type: Number, required: true },
+    probationMonthofNumber: { type: Number,  },
+    probationDate: { type: Date,  },
+    probationAmount: { type: Number,  },
 
     // Salary Details
-    BasicSalary: { type: Number, required: true },
-    HousingAmount: { type: Number, required: true },
-    transportationAmount: { type: Number, required: true },
-    otherAmount: { type: Number, required: true },
-    visaType: { type: String, required: true },
+    BasicSalary: { type: Number,  },
+    HousingAmount: { type: Number,  },
+    transportationAmount: { type: Number,  },
+    otherAmount: { type: Number,  },
+    visaType: { type: String,  },
 
     // Qatar ID Details
-    qatarID: { type: String, required: false },  // Change to String for Qatar ID
-    qatarIdExpiry: { type: Date, required: false },
-    idDesignation: { type: String, required: false },  // Change to String for Qatar ID
+    qatarID: { type: String, },  // Change to String for Qatar ID
+    qatarIdExpiry: { type: Date,},
+    idDesignation: { type: String, },  // Change to String for Qatar ID
 
     // Passport Details
-    passportNumber: { type: String, required: true },
-    passportDateOfIssue: { type: Date, required: true },
-    passportDateOfExpiry: { type: Date, required: true },
+    passportNumber: { type: String,  },
+    passportDateOfIssue: { type: Date,  },
+    passportDateOfExpiry: { type: Date,  },
 
     // HR Purpose
-    employeeNumber: { type: String, required: true },
-    position: { type: String, required: true },
+    employeeNumber: { type: String,  },
+    position: { type: String,  },
     status: { type: String, default: 'Active' },
 
     employeeImage: {
