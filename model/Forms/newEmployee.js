@@ -39,7 +39,14 @@ const newEmployeeSchema = new Schema(
     employeeNumber: { type: String,  },
     position: { type: String,  },
     status: { type: String, default: 'Active' },
-
+    salaryIncrement:[
+      {
+        salaryIncrementAmount:{type:Number},
+        salaryIncrementDate:{type:Date},
+        createdAt: { type: Date, default: Date.now },  
+        updatedAt: { type: Date, default: Date.now }, 
+    }
+  ],
     employeeImage: {
       type: String,
       get: (employeeImage) => {

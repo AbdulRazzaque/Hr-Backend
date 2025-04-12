@@ -48,7 +48,7 @@ const newEmployeeController = {
       const EmployeeSchema = Joi.object({
         name: Joi.string().required(),
         arabicName: Joi.string().required(),
-        dateOfBirth: Joi.date().required(),
+        dateOfBirth: Joi.date().allow(null, ''),
         dateOfJoining: Joi.date().required(),
         mobileNumber: Joi.number().allow(null, ''),
         maritalStatus: Joi.string().allow(null, ''),
@@ -57,9 +57,16 @@ const newEmployeeController = {
 
 
         // Allow qatarID and qatarIdExpiry to be optional
-            qatarID: Joi.number().allow(null, ''),
-            qatarIdExpiry: Joi.date().allow(null, ''),
-            idDesignation: Joi.string().allow(null, ''),
+          qatarID: Joi.number().allow(null, ''),
+          qatarIdExpiry: Joi.date().allow(null, ''),
+          idDesignation: Joi.string().allow(null, ''),
+
+          salaryIncrement: Joi.array().items(
+            Joi.object({
+              salaryIncrementAmount: Joi.string().allow(null, ''),
+              salaryIncrementDate: Joi.date().allow(null, '')
+            })
+          ).optional(),
 
         probationDate: Joi.date().required(),
         probationMonthofNumber: Joi.number().required(),
