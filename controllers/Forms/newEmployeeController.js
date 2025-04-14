@@ -46,14 +46,14 @@ const newEmployeeController = {
 
       // Validation schema
       const EmployeeSchema = Joi.object({
-        name: Joi.string().required(),
-        arabicName: Joi.string().required(),
+        name: Joi.string(),
+        arabicName: Joi.string(),
         dateOfBirth: Joi.date().allow(null, ''),
-        dateOfJoining: Joi.date().required(),
+        dateOfJoining: Joi.date().allow(null, ''),
         mobileNumber: Joi.number().allow(null, ''),
         maritalStatus: Joi.string().allow(null, ''),
-        nationality: Joi.string().required(),
-        department: Joi.string().required(),
+        nationality: Joi.string().allow(null, ''),
+        department: Joi.string().allow(null, ''),
 
 
         // Allow qatarID and qatarIdExpiry to be optional
@@ -68,26 +68,22 @@ const newEmployeeController = {
             })
           ).optional(),
 
-        probationDate: Joi.date().required(),
-        probationMonthofNumber: Joi.number().required(),
-        probationAmount: Joi.number().required(),
+        probationDate: Joi.date().allow(null, ''),
+        probationMonthofNumber: Joi.number().allow(null, ''),
+        probationAmount: Joi.number().allow(null, ''),
 
-        BasicSalary: Joi.number().required(),
-        HousingAmount: Joi.number().required(),
-        transportationAmount: Joi.number().required(),
-        otherAmount: Joi.number().required(),
-        visaType: Joi.string().required(),
+        BasicSalary: Joi.number().allow(null, ''),
+        HousingAmount: Joi.number().allow(null, ''),
+        transportationAmount: Joi.number().allow(null, ''),
+        otherAmount: Joi.number().allow(null, ''),
+        visaType: Joi.string().allow(null, ''),
 
         passportNumber: Joi.string().allow(null, ''),
         passportDateOfIssue: Joi.date().allow(null, ''),
-        // passportPlaceOfIssue: Joi.string().required(),
         passportDateOfExpiry: Joi.date().allow(null, ''),
 
-        // bloodGroup: Joi.string().required(),
         employeeNumber: Joi.string().allow(null, ''),
-        position: Joi.string().required().messages({
-          'any.required': 'position is required',
-        }),
+        position: Joi.string().allow(null, ''),
       });
 
       const { error } = EmployeeSchema.validate(req.body);
