@@ -8,7 +8,7 @@ const auth = (req, res, next) => {
   if (!headAuth) {
     return next(new Error('Unauthorized: No token provided.'));
   }
-
+ 
   // Extract the token from header
   const token = headAuth.split(' ')[1];
   if (!token) {
