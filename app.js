@@ -38,8 +38,8 @@ mongoose
 // 📌 Socket.io Setup
 const io = socketIo(server, {
   cors: {
-     origin: '*', // online Side
-    origin: ['http://192.168.1.10:778','https://hr-frontend.onrender.com'], // Server Side
+    
+    origin: ['http://192.168.1.10:778','https://hr-backend-r6zm.onrender.com'], // Server Side
     // origin: 'http://192.168.1.98:3000', // Local Side)
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
   }, 
