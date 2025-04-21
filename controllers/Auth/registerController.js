@@ -2,7 +2,7 @@ const Joi = require('joi');
 const CustomErrorHandler = require('../../services/CustomErrorHandler');
 const User = require('../../model/authmodle/user');
 const bcrypt = require('bcryptjs');
-const { hash } = require('bcrypt');
+const { hash } = require('bcryptjs');
 const JWT = require('../../services/Jwt');
 
 const registerSchema = {

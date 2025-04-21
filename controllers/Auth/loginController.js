@@ -1,6 +1,6 @@
 const Joi = require("joi");
 const User = require("../../model/authmodle/user");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const JWT = require("../../services/Jwt");
 
 
