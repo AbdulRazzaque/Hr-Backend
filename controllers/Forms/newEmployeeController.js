@@ -256,8 +256,7 @@ const newEmployeeController = {
   async allEmployee(req, res, next) {
     try {
       const allEmployees = await NewEmployee.find({status:"Active"})
-        .select("-__v -updatedAt")
-        .sort({ _id: -1 });
+        .select("-__v -updatedAt");
 
       res.json({ employees: allEmployees });
     } catch (error) {
