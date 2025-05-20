@@ -13,14 +13,15 @@ const notificationController = {
                 const currentDate = moment().startOf('day'); // Current date at midnight
                 const tomorrowDate = moment(currentDate).add(1, 'days'); // Tomorrow
                 const twoMonthsLater = moment(currentDate).add(2, 'months'); // Two months later
-
-                // Fetch employees whose Qatar ID expires within the next 2 months
+                const oneMonthLater = moment(currentDate).add(28, 'day'); // Two months later
+                
                 const employees = await newEmployee.find({
                     status: "Active",
                     $or: [
                         { qatarIdExpiry: { $lte: twoMonthsLater.toDate(), $gte: currentDate.toDate() } },
                         { passportDateOfExpiry: { $lte: twoMonthsLater.toDate(), $gte: currentDate.toDate() } },
-                        { probationDate: { $lte: tomorrowDate.toDate(), $gte: currentDate.toDate() } },
+                        { probationDate: { $lte: oneMonthLater.toDate(), $gte: currentDate.toDate() } },
+                    //    { probationDate: { $eq: notifyDate.toDate() } } // 👈 Ye line fix hai
                     ]
                 }); 
 
@@ -36,12 +37,13 @@ const notificationController = {
                         let passportNotificationMessage = `🔔 Reminder: ${employee.name}'s Passport will expire on ${moment(employee.passportDateOfExpiry).format('DD/MM/YYYY')}.`;
                         await this.sendExpiryNotification(io, employee, passportNotificationMessage);
                     }
-
-                    // Probation Date Notification
-                    if (employee.probationDate && moment(employee.probationDate).isBetween(currentDate, tomorrowDate, 'days', '[]')) {
-                        let probationNotificationMessage = `🔔 Reminder: ${employee.name}'s probation period is ending on ${moment(employee.probationDate).format('DD/MM/YYYY')}.`;
+                    if (employee.probationDate && moment(employee.probationDate).isBetween(currentDate, oneMonthLater, 'days', '[]')) {
+                        // let probationNotificationMessage = `🔔 Reminder: ${employee.name}'s probation will expire on ${moment(employee.probationDate).format('DD/MM/YYYY')}.`;
+                        let probationNotificationMessage = `🔔 Reminder: ${employee.name}'s probation period will end on ${moment(employee.probationDate).format('DD/MM/YYYY')}.`
                         await this.sendExpiryNotification(io, employee, probationNotificationMessage);
                     }
+                
+                   
                 }
 
                 console.log(`✅ Processed ${employees.length} employee notifications.`);
