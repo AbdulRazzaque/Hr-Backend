@@ -41,7 +41,7 @@ const endofServicesController = {
         exitType: Joi.string().required(),
         lastWorkingDate: Joi.date().required(),
         dateOfJoining: Joi.date().required(),
-        resumingofLastVacation: Joi.date().required(),
+        resumingofLastVacation: Joi.date().allow(null, ''),
         other: Joi.string().allow(null, ''),
 
 
@@ -119,7 +119,7 @@ const endofServicesController = {
         exitType: Joi.string().required(),
         lastWorkingDate: Joi.date().required(),
         dateOfJoining: Joi.date().required(),
-        resumingofLastVacation: Joi.date().required(),
+        resumingofLastVacation: Joi.date().allow(null, ''),
         other: Joi.string().allow(null, '')
 
     //---------------Prepared-----------------------

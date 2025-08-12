@@ -12,7 +12,7 @@ const endofServicesSchema = new Schema(
     exitType:{type:String,require:true},
     lastWorkingDate: { type: Date, require: true },
     dateOfJoining: { type: Date, require: true },
-    resumingofLastVacation: { type: Date, require: true },
+    resumingofLastVacation: { type: Date },
     other: { type: String },
  
 
