@@ -61,14 +61,9 @@ const exitForLeaveController = {
       const { error } = exitForLeaveSchema.validate(req.body);
 
       if (error) {
-        fs.unlink(`${appRoot}`, (err) => {
-          if (err) {
-            return next(error);
-          }
-        });
-
         return next(error);
-      }
+        }
+
 
       const {
         employeeId,
@@ -93,9 +88,22 @@ const exitForLeaveController = {
         comment,
       } = req.body;
 
-      let exitofleave;
+    console.log(req.body)
       try {
-        exitofleave = await ExitofLeave.create({
+       // 1️⃣ Pehle latest existing leave nikal lo
+      const latestLeave = await ExitofLeave.findOne({ employeeId }).sort({ _id: -1 });
+
+      // 2️⃣ Agar mila to previous leave ka data update karo
+      if (latestLeave) {
+        latestLeave.leaveStartDate = lastLeaveStartDate;
+        latestLeave.leaveEndDate = lastLeaveEndDate;
+        latestLeave.numberOfDayLeave = lastNumberOfDayLeave;
+        await latestLeave.save();
+        // console.log("Previous leave updated successfully:", latestLeave);
+      }
+
+        // Create a new exit leave entry
+      const  exitofleave = await ExitofLeave.create({
           employeeId,
           date,
           leaveType,
@@ -117,11 +125,12 @@ const exitForLeaveController = {
           tools,
           comment,
         });
+      res.status(201).json({ message: "Exit leave successfully added", exitofleave: exitofleave });
+
       } catch (error) {
         return next(error);
       }
 
-      res.status(201).json({ message: "Exit leave successfully added", exitofleave: exitofleave });
 
     });
   },

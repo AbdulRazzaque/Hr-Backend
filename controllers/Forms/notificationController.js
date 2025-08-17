@@ -9,7 +9,7 @@ const notificationController = {
      async setUpExpiryNotifications(io) {  
         cron.schedule('* * * * *', async () => { // Schedule the task to run every day at 6:00 AM
               try { 
-                console.log('🔄 Checking for Qatar ID Expiry Notifications...'); 
+                // console.log('🔄 Checking for Qatar ID Expiry Notifications...'); 
                 const currentDate = moment().startOf('day'); // Current date at midnight
                 const tomorrowDate = moment(currentDate).add(1, 'days'); // Tomorrow
                 const twoMonthsLater = moment(currentDate).add(2, 'months'); // Two months later
@@ -46,7 +46,7 @@ const notificationController = {
                    
                 }
 
-                console.log(`✅ Processed ${employees.length} employee notifications.`);
+                // console.log(`✅ Processed ${employees.length} employee notifications.`);
             } catch (error) {
                 console.error('❌ Error in Expiry Notification Job:', error);
             }
