@@ -38,7 +38,7 @@ const endofServicesController = {
         employeeId: Joi.objectId().required(), // ObjectId format
         date:Joi.date().required(),
         subject: Joi.string().allow(null, ''),
-        exitType: Joi.string().required(),
+        exitType: Joi.string().allow(null, ''),
         lastWorkingDate: Joi.date().required(),
         dateOfJoining: Joi.date().required(),
         resumingofLastVacation: Joi.date().allow(null, ''),
@@ -116,7 +116,7 @@ const endofServicesController = {
         employeeId: Joi.objectId().required(), // ObjectId format
         date:Joi.date().required(),
         subject: Joi.string().allow(null, ''),
-        exitType: Joi.string().required(),
+        exitType: Joi.string().allow(null, ''),
         lastWorkingDate: Joi.date().required(),
         dateOfJoining: Joi.date().required(),
         resumingofLastVacation: Joi.date().allow(null, ''),
