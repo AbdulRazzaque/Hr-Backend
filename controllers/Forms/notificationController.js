@@ -71,6 +71,7 @@ async sendExpiryNotification(io, employee, message) {
 
         // Emit the notification through WebSocket
         io.emit("expiryNotification", {
+            _id: notification._id,
             message: notification.message,
             employeeId: employee,
             timestamp: notification.timestamp
