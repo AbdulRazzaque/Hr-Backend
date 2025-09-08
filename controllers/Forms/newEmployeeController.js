@@ -116,7 +116,6 @@ const newEmployeeController = {
   },
 
 
-
   //==================================================== Update Employee API ====================================================
 
   async updateEmployee(req, res, next) {
@@ -255,8 +254,9 @@ const newEmployeeController = {
   //==================================================== Get All Employees API ====================================================
   async allEmployee(req, res, next) {
     try {
-      const allEmployees = await NewEmployee.find({status:"Active"})
-        .select("-__v -updatedAt");
+      const allEmployees = await NewEmployee.find({
+      status: { $in: ["Active", "Rejoin"] } // Active OR Rejoin
+    }).select("-__v -updatedAt");
 
       res.json({ employees: allEmployees });
     } catch (error) {
@@ -278,7 +278,10 @@ const newEmployeeController = {
 
   async getTotalActiveEmployees(req,res,next){
     try {
-      const totalActiveEmployees = await NewEmployee.countDocuments({status:"Active"})
+      const totalActiveEmployees = await NewEmployee.countDocuments({
+         status: { $in: ["Active", "Rejoin"] } // Active OR Rejoin
+      }
+      )
       res.json({totalActiveEmployees})
     } catch (error) {
 //  

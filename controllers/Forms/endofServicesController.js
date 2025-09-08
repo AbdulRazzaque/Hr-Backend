@@ -100,6 +100,64 @@ const endofServicesController = {
       res.status(201).json({message:"Employee successfully removed ", endofservices: endofservices });
     });
   },
+
+
+
+
+// Controller
+async updateStatus(req, res, next) {
+
+  try {
+    const { id } = req.params; // from URL
+
+    if (!id) {
+      return res.status(400).json({ message: "Employee ID is required" });
+    }
+
+    const updatedEmployee = await NewEmployee.findByIdAndUpdate(
+      id,
+      { status: "Rejoin" },
+      { new: true }
+    );
+
+    if (!updatedEmployee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    return res.status(200).json({
+      message: "Employee rejoined successfully",
+      employee: updatedEmployee,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Something went wrong while updating status",
+      error: error.message,
+    });
+  }
+},
+
+
+async allRejoinEmployee(req, res, next) {
+    console.log("Yes Calling here")
+  try {
+    const allRejoinEmployee = await NewEmployee.find({ status: "Rejoin" }).sort({_id:-1});
+
+    return res.status(200).json({
+      success: true,
+      count: allRejoinEmployee.length,
+      employees: allRejoinEmployee,
+    });
+  } catch (error) {
+    console.error("Error fetching rejoin employees:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong while fetching rejoin employees",
+      error: error.message,
+    });
+  }
+},
+
   //--------------------endos services.Api----------------------------
   async UpdateEndofservices(req, res, next) {
     handleMultipartData(req, res, async (err) => {
@@ -203,19 +261,25 @@ const endofServicesController = {
     res.json({ deleteEndofservice: deleteEndofservice });
   },
 //   //---------------------All Employee API -------------------------
-  async allEndofservice(req, res, next) {
-    let allEndofservice;
-    try {
-        allEndofservice = await EndofServices.find({})
-        .populate("employeeId") // Populate all fields of the Employee document
-        .select("-__V -updatedAt")
-        .sort({ _id: -1 });
-    } catch (error) {
-      return next(error);
-    }
+async allEndofservice(req, res, next) {
+  try {
+    let allEndofservice = await EndofServices.find({})
+      .populate({
+        path: "employeeId",
+        match: { status: "Deactive" } // must match EXACT value in DB
+      })
+      .select("-__v -updatedAt")
+      .sort({ _id: -1 });
 
-    res.json({ allEndofservice: allEndofservice });
-  },
+    // Important: filter out those where employeeId === null
+    allEndofservice = allEndofservice.filter(e => e.employeeId);
+
+    res.json({ allEndofservice });
+  } catch (error) {
+    return next(error);
+  }
+},
+
   //----------------one employee------------------------
   async oneEndofservice(req, res, next) {
     let oneEndofservice;

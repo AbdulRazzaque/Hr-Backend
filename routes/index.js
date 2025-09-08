@@ -45,6 +45,8 @@ Route.post('/endofservices', auth,endofServicesController.endofservices)
 Route.put('/UpdateEndofservices/:id', auth,endofServicesController.UpdateEndofservices)
 Route.delete('/deleteEndofservice/:id', auth,endofServicesController.deleteEndofservice)
 Route.get('/getTotalExitEmployees',endofServicesController.getTotalExitEmployees)
+Route.put('/updateStatus/:id', auth,endofServicesController.updateStatus)
+Route.get('/allRejoinEmployee', auth,endofServicesController.allRejoinEmployee)
 //-----------------------------enf of services----------------------------------------
 
 //=========================exit for leave======================================
