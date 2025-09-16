@@ -139,7 +139,7 @@ async updateStatus(req, res, next) {
 
 
 async allRejoinEmployee(req, res, next) {
-    console.log("Yes Calling here")
+
   try {
     const allRejoinEmployee = await NewEmployee.find({ status: "Rejoin" }).sort({_id:-1});
 
