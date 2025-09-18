@@ -4,19 +4,19 @@ const Schema = mongoose.Schema;
 const newEmployeeSchema = new Schema(
   {
     // New Employee Info
-    name: { type: String,  },
-    arabicName: { type: String,  },
+    name: { type: String, trim: true},
+    arabicName: { type: String, trim: true },
     dateOfBirth: { type: Date,  },
     dateOfJoining: { type: Date,  },
-    mobileNumber: { type: String,  }, // Change to String for phone number format
-    maritalStatus: { type: String,  },
+    mobileNumber: { type: String, trim: true }, // Change to String for phone number format
+    maritalStatus: { type: String, trim: true },
     nationality: { type: String,  },
     department: { type: String,  },
 
     // Probation Period
     probationMonthofNumber: { type: Number,  },
     probationDate: { type: Date,  },
-    probationAmount: { type: Number,  },
+    probationAmount: { type: Number, trim: true },
 
     // Salary Details
     BasicSalary: { type: Number,  },
@@ -26,18 +26,18 @@ const newEmployeeSchema = new Schema(
     visaType: { type: String,  },
 
     // Qatar ID Details
-    qatarID: { type: String, },  // Change to String for Qatar ID
-    qatarIdExpiry: { type: Date,},
-    idDesignation: { type: String, },  // Change to String for Qatar ID
+    qatarID: { type: String, trim: true,unique:true,lowercase: true,},  // Change to String for Qatar ID
+    qatarIdExpiry: { type: Date, },
+    idDesignation: { type: String, trim: true},  // Change to String for Qatar ID
 
     // Passport Details
-    passportNumber: { type: String,  },
+    passportNumber: { type: String,trim: true ,unique:true,lowercase: true,},
     passportDateOfIssue: { type: Date,  },
     passportDateOfExpiry: { type: Date,  },
 
     // HR Purpose
-    employeeNumber: { type: String,  },
-    position: { type: String,  },
+    employeeNumber: { type: String,trim:true, unique:true, lowercase: true,},
+    position: { type: String,trim: true  },
     status: { type: String, default: 'Active' },
     salaryIncrement:[
       {

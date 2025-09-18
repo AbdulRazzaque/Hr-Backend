@@ -29,174 +29,225 @@ const handleMultipartData = multer({
 
 const newEmployeeController = {
   //==================================================== Create Employee API ====================================================
-  async newEmployee(req, res, next) {
-    handleMultipartData(req, res, async (err) => {
-      // console.log(req.body)
-      if (err) return next(err);
+async newEmployee(req, res, next) {
+  handleMultipartData(req, res, async (err) => {
+    if (err) return next(err);
 
-      // Paths for uploaded files
-      // Paths for uploaded files
-      const filePaths = {
-        employeeImage: req.files.employeeImage ? req.files.employeeImage[0].path : null,
-        employeePassport: req.files.employeePassport ? req.files.employeePassport[0].path : null,
-        employeeQatarID: req.files.employeeQatarID ? req.files.employeeQatarID[0].path : null,
-        employeeContractCopy: req.files.employeeContractCopy ? req.files.employeeContractCopy[0].path : null,
-        employeeGraduationCertificate: req.files.employeeGraduationCertificate ? req.files.employeeGraduationCertificate[0].path : null,
-      };
+    const filePaths = {
+      employeeImage: req.files.employeeImage ? req.files.employeeImage[0].path : null,
+      employeePassport: req.files.employeePassport ? req.files.employeePassport[0].path : null,
+      employeeQatarID: req.files.employeeQatarID ? req.files.employeeQatarID[0].path : null,
+      employeeContractCopy: req.files.employeeContractCopy ? req.files.employeeContractCopy[0].path : null,
+      employeeGraduationCertificate: req.files.employeeGraduationCertificate ? req.files.employeeGraduationCertificate[0].path : null,
+    };
 
-      // Validation schema
-      const EmployeeSchema = Joi.object({
-        name: Joi.string(),
-        arabicName: Joi.string(),
-        dateOfBirth: Joi.date().allow(null, ''),
-        dateOfJoining: Joi.date().allow(null, ''),
-        mobileNumber: Joi.number().allow(null, ''),
-        maritalStatus: Joi.string().allow(null, ''),
-        nationality: Joi.string().allow(null, ''),
-        department: Joi.string().allow(null, ''),
+    try {
+      let {
+        name,
+        arabicName,
+        dateOfBirth,
+        dateOfJoining,
+        mobileNumber,
+        maritalStatus,
+        nationality,
+        department,
+        qatarID,
+        qatarIdExpiry,
+        idDesignation,
+        salaryIncrement,
+        probationDate,
+        probationMonthofNumber,
+        probationAmount,
+        BasicSalary,
+        HousingAmount,
+        transportationAmount,
+        otherAmount,
+        visaType,
+        passportNumber,
+        passportDateOfIssue,
+        passportDateOfExpiry,
+        employeeNumber,
+        position,
+      } = req.body;
 
+      // 🔹 Only Name is required
+      if (!name || name.trim() === "") {
+        Object.values(filePaths).forEach((fp) => fp && fs.unlinkSync(fp));
+        return res.status(400).json({ message: "Name is required" });
+      }
 
-        // Allow qatarID and qatarIdExpiry to be optional
-          qatarID: Joi.number().allow(null, ''),
-          qatarIdExpiry: Joi.date().allow(null, ''),
-          idDesignation: Joi.string().allow(null, ''),
+      // 🔹 Normalize fields for duplicate check
+      const empNum = employeeNumber?.toString().trim().toLowerCase();
+      const passportNum = passportNumber?.toString().trim();
+      const qatarIdStr = qatarID?.toString().trim();
 
-          salaryIncrement: Joi.array().items(
-            Joi.object({
-              salaryIncrementAmount: Joi.string().allow(null, ''),
-              salaryIncrementDate: Joi.date().allow(null, '')
-            })
-          ).optional(),
+      // 🔹 Build conditions for duplicate check
+      const conditions = [];
+      if (empNum) {
+        conditions.push({ employeeNumber: { $regex: `^${empNum}$`, $options: "i" } });
+      }
+      if (passportNum) {
+        conditions.push({ passportNumber: { $regex: `^${passportNum}$` } });
+      }
+      if (qatarIdStr) {
+        conditions.push({ qatarID: qatarIdStr });
+      }
 
-        probationDate: Joi.date().allow(null, ''),
-        probationMonthofNumber: Joi.number().allow(null, ''),
-        probationAmount: Joi.number().allow(null, ''),
+      let existingEmployee = null;
+      if (conditions.length > 0) {
+        existingEmployee = await NewEmployee.findOne({ $or: conditions });
+      }
 
-        BasicSalary: Joi.number().allow(null, ''),
-        HousingAmount: Joi.number().allow(null, ''),
-        transportationAmount: Joi.number().allow(null, ''),
-        otherAmount: Joi.number().allow(null, ''),
-        visaType: Joi.string().allow(null, ''),
+      if (existingEmployee) {
+        Object.values(filePaths).forEach((fp) => fp && fs.unlinkSync(fp));
 
-        passportNumber: Joi.string().allow(null, ''),
-        passportDateOfIssue: Joi.date().allow(null, ''),
-        passportDateOfExpiry: Joi.date().allow(null, ''),
+        if (existingEmployee.employeeNumber?.toLowerCase() === empNum) {
+          return res.status(400).json({
+            message: `Employee Number already exists (assigned to ${existingEmployee.name})`,
+          });
+        }
+        if (existingEmployee.qatarID == qatarIdStr) {
+          return res.status(400).json({
+            message: `Qatar ID already exists (assigned to ${existingEmployee.name})`,
+          });
+        }
+        if (existingEmployee.passportNumber === passportNum) {
+          return res.status(400).json({
+            message: `Passport Number already exists (assigned to ${existingEmployee.name})`,
+          });
+        }
+      }
 
-        employeeNumber: Joi.string().allow(null, ''),
-        position: Joi.string().allow(null, ''),
+      // ✅ Create new employee
+      const newEmployee = await NewEmployee.create({
+        name,
+        arabicName,
+        dateOfBirth,
+        dateOfJoining,
+        mobileNumber,
+        maritalStatus,
+        nationality,
+        department,
+        qatarID: qatarIdStr,
+        qatarIdExpiry,
+        idDesignation,
+        salaryIncrement,
+        probationDate,
+        probationMonthofNumber,
+        probationAmount,
+        BasicSalary,
+        HousingAmount,
+        transportationAmount,
+        otherAmount,
+        visaType,
+        passportNumber: passportNum,
+        passportDateOfIssue,
+        passportDateOfExpiry,
+        employeeNumber: empNum,
+        position,
+        ...filePaths,
       });
 
-      const { error } = EmployeeSchema.validate(req.body);
-      if (error) {
-        // Only unlink files if the paths exist
-        Object.values(filePaths).forEach((filePath) => {
-          if (filePath) {
-            fs.unlinkSync(filePath); // Delete only if file path exists
-          }
-        });   
-        // return next(error);
-        return res.status(400).json({ message: error.details[0].message });
-      }
-      try {
-        const newEmployee = await NewEmployee.create({
-          ...req.body,
-          ...filePaths,
-        });
-        res.status(201).json({ message: "Employee added successfully", newEmployee });
-      } catch (error) {
-        // Delete the files if an error occurs during the creation process
-        Object.values(filePaths).forEach((filePath) => {
-          if (filePath) {
-            fs.unlinkSync(filePath); // Delete only if file path exists
-          }
-        });
-        return next(error);
-      }
-    });
-  },
+      res.status(201).json({
+        message: "Employee added successfully",
+        newEmployee,
+      });
+
+    } catch (error) {
+      Object.values(filePaths).forEach((fp) => fp && fs.unlinkSync(fp));
+      return next(error);
+    }
+  });
+},
+
 
 
   //==================================================== Update Employee API ====================================================
+async updateEmployee(req, res, next) {
+  try {
+    handleMultipartData(req, res, async (err) => {
+      if (err) return next(err);
 
-  async updateEmployee(req, res, next) {
-    try {
-      // Handle multipart data
-      handleMultipartData(req, res, async (err) => {
-        if (err) return next(err);
-  
- 
-  
-        // Safeguard against missing req.files
-        const filePaths = {
-          employeeImage: req.files?.employeeImage ? req.files.employeeImage[0].path : null,
-          employeePassport: req.files?.employeePassport ? req.files.employeePassport[0].path : null,
-          employeeQatarID: req.files?.employeeQatarID ? req.files.employeeQatarID[0].path : null,
-          employeeContractCopy: req.files?.employeeContractCopy ? req.files.employeeContractCopy[0].path : null,
-          employeeGraduationCertificate: req.files?.employeeGraduationCertificate
-            ? req.files.employeeGraduationCertificate[0].path
-            : null,
-        };
-  
-        // Fetch the existing employee to clean up old files if new images are uploaded
-        const existingEmployee = await NewEmployee.findById(req.params.id);
-        if (!existingEmployee) return res.status(404).json({ message: 'Employee not found' });
-  
-        // Prepare update data by merging new paths and retaining old ones if no new file is uploaded
-        const updateData = {
-          ...req.body,
-          employeeImage: filePaths.employeeImage || existingEmployee.employeeImage,
-          employeePassport: filePaths.employeePassport || existingEmployee.employeePassport,
-          employeeQatarID: filePaths.employeeQatarID || existingEmployee.employeeQatarID,
-          employeeContractCopy: filePaths.employeeContractCopy || existingEmployee.employeeContractCopy,
-          employeeGraduationCertificate:
-            filePaths.employeeGraduationCertificate || existingEmployee.employeeGraduationCertificate,
-        };
-  
-        // Only delete old images if new images are uploaded
-        const oldFilePaths = [
-          existingEmployee.employeeImage,
-          existingEmployee.employeePassport,
-          existingEmployee.employeeQatarID,
-          existingEmployee.employeeContractCopy,
-          existingEmployee.employeeGraduationCertificate,
-        ];
-  
-        oldFilePaths.forEach((oldFilePath, index) => {
-          // Delete old images only if a new image is uploaded for that specific field
-          if (filePaths[Object.keys(filePaths)[index]] && oldFilePath) {
-            const fullPath = path.resolve(__dirname, '..', '..', 'uploads', path.basename(oldFilePath));
-            console.log(`Attempting to delete file at: ${fullPath}`);
-  
-            if (fs.existsSync(fullPath)) {
-              try {
-                fs.unlinkSync(fullPath);
-                console.log(`Successfully deleted file: ${fullPath}`);
-              } catch (err) {
-                console.error(`Error deleting file ${fullPath}:`, err);
-              }
-            } else {
-              console.warn(`File not found at path: ${fullPath}`);
-            }
+      const filePaths = {
+        employeeImage: req.files?.employeeImage ? req.files.employeeImage[0].path : null,
+        employeePassport: req.files?.employeePassport ? req.files.employeePassport[0].path : null,
+        employeeQatarID: req.files?.employeeQatarID ? req.files.employeeQatarID[0].path : null,
+        employeeContractCopy: req.files?.employeeContractCopy ? req.files.employeeContractCopy[0].path : null,
+        employeeGraduationCertificate: req.files?.employeeGraduationCertificate
+          ? req.files.employeeGraduationCertificate[0].path
+          : null,
+      };
+
+      const existingEmployee = await NewEmployee.findById(req.params.id);
+      if (!existingEmployee) return res.status(404).json({ message: 'Employee not found' });
+
+      // 🔹 Duplicate check for employeeNumber, passportNumber, qatarID
+      const empNum = req.body.employeeNumber?.toString().trim().toLowerCase();
+      const passportNum = req.body.passportNumber?.toString().trim();
+      const qatarIdStr = req.body.qatarID?.toString().trim();
+
+      const conditions = [];
+      if (empNum) conditions.push({ employeeNumber: { $regex: `^${empNum}$`, $options: "i" } });
+      if (passportNum) conditions.push({ passportNumber: { $regex: `^${passportNum}$` } });
+      if (qatarIdStr) conditions.push({ qatarID: qatarIdStr });
+
+      if (conditions.length > 0) {
+        const duplicate = await NewEmployee.findOne({ $or: conditions, _id: { $ne: req.params.id } });
+        if (duplicate) {
+          Object.values(filePaths).forEach((fp) => fp && fs.unlinkSync(fp));
+          if (duplicate.employeeNumber?.toLowerCase() === empNum) {
+            return res.status(400).json({ message: `Employee Number already exists (assigned to ${duplicate.name})` });
           }
-        });
-  
-        // Update the employee in the database with new image paths
-        const updatedEmployee = await NewEmployee.findByIdAndUpdate(req.params.id, updateData, { new: true });
-  
-        // Send the updated employee data as response
-        res.json({ message: 'Employee updated successfully', updatedEmployee });
-     
+          if (duplicate.qatarID == qatarIdStr) {
+            return res.status(400).json({ message: `Qatar ID already exists (assigned to ${duplicate.name})` });
+          }
+          if (duplicate.passportNumber === passportNum) {
+            return res.status(400).json({ message: `Passport Number already exists (assigned to ${duplicate.name})` });
+          }
+        }
+      }
+
+      // 🔹 Merge new file paths with existing ones
+      const updateData = {
+        ...req.body,
+        employeeImage: filePaths.employeeImage || existingEmployee.employeeImage,
+        employeePassport: filePaths.employeePassport || existingEmployee.employeePassport,
+        employeeQatarID: filePaths.employeeQatarID || existingEmployee.employeeQatarID,
+        employeeContractCopy: filePaths.employeeContractCopy || existingEmployee.employeeContractCopy,
+        employeeGraduationCertificate:
+          filePaths.employeeGraduationCertificate || existingEmployee.employeeGraduationCertificate,
+        employeeNumber: empNum || existingEmployee.employeeNumber,
+        passportNumber: passportNum || existingEmployee.passportNumber,
+        qatarID: qatarIdStr || existingEmployee.qatarID,
+      };
+
+      const oldFilePaths = [
+        existingEmployee.employeeImage,
+        existingEmployee.employeePassport,
+        existingEmployee.employeeQatarID,
+        existingEmployee.employeeContractCopy,
+        existingEmployee.employeeGraduationCertificate,
+      ];
+
+      oldFilePaths.forEach((oldFilePath, index) => {
+        if (filePaths[Object.keys(filePaths)[index]] && oldFilePath) {
+          const fullPath = path.resolve(__dirname, '..', '..', 'uploads', path.basename(oldFilePath));
+          if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath);
+        }
       });
-    } catch (error) {
-      // Cleanup any uploaded files if an error occurs
-      const filePaths = Object.values(filePaths);
-      filePaths.forEach((filePath) => {
-        if (filePath) fs.unlinkSync(filePath);
-      });
-      return next(error);
-    }
-  },
-  
+
+      const updatedEmployee = await NewEmployee.findByIdAndUpdate(req.params.id, updateData, { new: true });
+      res.json({ message: 'Employee updated successfully', updatedEmployee });
+    });
+  } catch (error) {
+    const filePathsArr = Object.values(filePaths);
+    filePathsArr.forEach((filePath) => {
+      if (filePath) fs.unlinkSync(filePath);
+    });
+    return next(error);
+  }
+},
+
   
   
   //==================================================== Delete Employee API ====================================================
