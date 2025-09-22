@@ -298,14 +298,17 @@ async allEndofservice(req, res, next) {
   },
   async getTotalExitEmployees(req,res,next){
     try {
-      const totalExitEmployees = await EndofServices.countDocuments()
+      const totalExitEmployees = await NewEmployee.countDocuments({
+        status:"Deactive"
+      })
       res.json({totalExitEmployees})
     } catch (error) {
 
       next(error)
     }
-  }
-  
+  },
+ 
+    
 };
 
 module.exports = endofServicesController;

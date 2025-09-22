@@ -26,12 +26,12 @@ const newEmployeeSchema = new Schema(
     visaType: { type: String,  },
 
     // Qatar ID Details
-    qatarID: { type: String, trim: true,unique:true,lowercase: true,},  // Change to String for Qatar ID
+    qatarID: { type: String, trim: true,unique:true,lowercase:true,},  // Change to String for Qatar ID
     qatarIdExpiry: { type: Date, },
     idDesignation: { type: String, trim: true},  // Change to String for Qatar ID
 
     // Passport Details
-    passportNumber: { type: String,trim: true ,unique:true,lowercase: true,},
+    passportNumber: { type: String,trim: true,unique:true,uppercase: true,},
     passportDateOfIssue: { type: Date,  },
     passportDateOfExpiry: { type: Date,  },
 

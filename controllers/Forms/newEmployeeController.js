@@ -87,7 +87,7 @@ async newEmployee(req, res, next) {
         conditions.push({ employeeNumber: { $regex: `^${empNum}$`, $options: "i" } });
       }
       if (passportNum) {
-        conditions.push({ passportNumber: { $regex: `^${passportNum}$` } });
+        conditions.push({ passportNumber: { $regex: `^${passportNum}$`,$options: "i" } });
       }
       if (qatarIdStr) {
         conditions.push({ qatarID: qatarIdStr });
@@ -111,7 +111,7 @@ async newEmployee(req, res, next) {
             message: `Qatar ID already exists (assigned to ${existingEmployee.name})`,
           });
         }
-        if (existingEmployee.passportNumber === passportNum) {
+        if (existingEmployee.passportNumber?.toLowerCase() === passportNum.toLowerCase()) {
           return res.status(400).json({
             message: `Passport Number already exists (assigned to ${existingEmployee.name})`,
           });
