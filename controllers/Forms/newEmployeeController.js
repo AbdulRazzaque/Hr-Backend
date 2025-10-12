@@ -183,12 +183,12 @@ async updateEmployee(req, res, next) {
 
       // 🔹 Duplicate check for employeeNumber, passportNumber, qatarID
       const empNum = req.body.employeeNumber?.toString().trim().toLowerCase();
-      const passportNum = req.body.passportNumber?.toString().trim();
+      const passportNum = req.body.passportNumber?.toString().trim().toUpperCase();;
       const qatarIdStr = req.body.qatarID?.toString().trim();
 
       const conditions = [];
       if (empNum) conditions.push({ employeeNumber: { $regex: `^${empNum}$`, $options: "i" } });
-      if (passportNum) conditions.push({ passportNumber: { $regex: `^${passportNum}$` } });
+      if (passportNum) conditions.push({ passportNumber: { $regex: `^${passportNum}$`, $options: "i" } });
       if (qatarIdStr) conditions.push({ qatarID: qatarIdStr });
 
       if (conditions.length > 0) {
@@ -201,8 +201,8 @@ async updateEmployee(req, res, next) {
           if (duplicate.qatarID == qatarIdStr) {
             return res.status(400).json({ message: `Qatar ID already exists (assigned to ${duplicate.name})` });
           }
-          if (duplicate.passportNumber === passportNum) {
-            return res.status(400).json({ message: `Passport Number already exists (assigned to ${duplicate.name})` });
+          if (duplicate.passportNumber?.toUpperCase() === passportNum) {
+            return res.status(400).json({ message: `Passport Number already exists (assigned to ${duplicate.name}- ${duplicate.passportNumber})` });
           }
         }
       }
