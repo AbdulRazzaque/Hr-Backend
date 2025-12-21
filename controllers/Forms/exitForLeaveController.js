@@ -43,7 +43,7 @@ const exitForLeaveController = {
         lastLeaveStartDate: Joi.date().required(),
         lastLeaveEndDate: Joi.date().required(),
         lastNumberOfDayLeave: Joi.number().required(),
-
+        lastLeaveType: Joi.string().required(),
         // Asset and Loan Info
         bankLoan: Joi.string().required(),
         personalLoan: Joi.string().required(),
@@ -75,7 +75,7 @@ const exitForLeaveController = {
         lastLeaveStartDate,
         lastLeaveEndDate,
         lastNumberOfDayLeave,
-
+        lastLeaveType,
         // Asset and Loan Info
         bankLoan,
         personalLoan,
@@ -98,6 +98,7 @@ const exitForLeaveController = {
         latestLeave.leaveStartDate = lastLeaveStartDate;
         latestLeave.leaveEndDate = lastLeaveEndDate;
         latestLeave.numberOfDayLeave = lastNumberOfDayLeave;
+        latestLeave.lastLeaveType = lastLeaveType
         await latestLeave.save();
         // console.log("Previous leave updated successfully:", latestLeave);
       }
@@ -113,7 +114,7 @@ const exitForLeaveController = {
           lastLeaveStartDate,
           lastLeaveEndDate,
           lastNumberOfDayLeave,
-  
+          lastLeaveType,
           // Asset and Loan Info
           bankLoan,
           personalLoan,
@@ -156,7 +157,7 @@ const exitForLeaveController = {
         lastLeaveStartDate: Joi.date().required(),
         lastLeaveEndDate: Joi.date().required(),
         lastNumberOfDayLeave: Joi.number().required(),
-
+        lastLeaveType: Joi.string().required(),
         // Asset and Loan Info
         bankLoan: Joi.string().required(),
         personalLoan: Joi.string().required(),
@@ -192,7 +193,7 @@ const exitForLeaveController = {
         lastLeaveStartDate,
         lastLeaveEndDate,
         lastNumberOfDayLeave,
-
+        lastLeaveType,
         // Asset and Loan Info
         bankLoan,
         personalLoan,
@@ -229,7 +230,7 @@ const exitForLeaveController = {
             lastLeaveStartDate,
             lastLeaveEndDate,
             lastNumberOfDayLeave,
-    
+            lastLeaveType,
             // Asset and Loan Info
             bankLoan,
             personalLoan,
