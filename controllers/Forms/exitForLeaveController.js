@@ -40,10 +40,10 @@ const exitForLeaveController = {
         leaveStartDate: Joi.string().required(),
         leaveEndDate: Joi.date().required(),
         numberOfDayLeave: Joi.string().required(),
-        lastLeaveStartDate: Joi.date().required(),
-        lastLeaveEndDate: Joi.date().required(),
-        lastNumberOfDayLeave: Joi.number().required(),
-        lastLeaveType: Joi.string().required(),
+        lastLeaveStartDate: Joi.date().allow(null, '').optional(),
+        lastLeaveEndDate: Joi.date().allow(null, '').optional(),
+        lastNumberOfDayLeave: Joi.number().allow(null, '').optional(),
+        lastLeaveType: Joi.string().allow(null, '').optional(),
         // Asset and Loan Info
         bankLoan: Joi.string().required(),
         personalLoan: Joi.string().required(),
@@ -93,12 +93,12 @@ const exitForLeaveController = {
        // 1️⃣ Pehle latest existing leave nikal lo
       const latestLeave = await ExitofLeave.findOne({ employeeId }).sort({ _id: -1 });
 
-      // 2️⃣ Agar mila to previous leave ka data update karo
-      if (latestLeave) {
-        latestLeave.leaveStartDate = lastLeaveStartDate;
-        latestLeave.leaveEndDate = lastLeaveEndDate;
-        latestLeave.numberOfDayLeave = lastNumberOfDayLeave;
-        latestLeave.lastLeaveType = lastLeaveType
+      // 2️⃣ Agar mila to previous leave ka data update karo (only if values are provided)
+      if (latestLeave && (lastLeaveStartDate || lastLeaveEndDate || lastNumberOfDayLeave || lastLeaveType)) {
+        if (lastLeaveStartDate) latestLeave.leaveStartDate = lastLeaveStartDate;
+        if (lastLeaveEndDate) latestLeave.leaveEndDate = lastLeaveEndDate;
+        if (lastNumberOfDayLeave) latestLeave.numberOfDayLeave = lastNumberOfDayLeave;
+        if (lastLeaveType) latestLeave.lastLeaveType = lastLeaveType;
         await latestLeave.save();
         // console.log("Previous leave updated successfully:", latestLeave);
       }
@@ -154,10 +154,10 @@ const exitForLeaveController = {
         leaveStartDate: Joi.string().required(),
         leaveEndDate: Joi.date().required(),
         numberOfDayLeave: Joi.string().required(),
-        lastLeaveStartDate: Joi.date().required(),
-        lastLeaveEndDate: Joi.date().required(),
-        lastNumberOfDayLeave: Joi.number().required(),
-        lastLeaveType: Joi.string().required(),
+        lastLeaveStartDate: Joi.date().optional(),
+        lastLeaveEndDate: Joi.date().optional(),
+        lastNumberOfDayLeave: Joi.number().optional(),
+        lastLeaveType: Joi.string().optional(),
         // Asset and Loan Info
         bankLoan: Joi.string().required(),
         personalLoan: Joi.string().required(),
