@@ -180,98 +180,9 @@ const AbsenceLeaveController ={
     // async getTotalSickLeave(req, res, next) {
     //     const employeeId = req.params.id;
     //     try {
-    //         // Fetch resume history data
+    //         // Fetch employee resume history (latest first)
     //         const employeeResume = await EmployeeResumeModel.find({ employeeId })
-    //             .sort({ resumeOfWorkDate: 1 })  // Oldest to newest sorting
-    //             .lean();
-    
-    //         // Debugging to check data before sorting
-    //         console.log("Employee Resume Data:", employeeResume);
-    
-    //         if (!Array.isArray(employeeResume) || employeeResume.length === 0) {
-    //             return res.status(404).json({ message: "No resume history found for this employee." });
-    //         }
-    
-    //         // Find the first resumeOfWorkDate for the employee
-    //         const firstResumeOfYear = employeeResume.find(resume => {
-    //             return new Date(resume.resumeOfWorkDate).getFullYear() === new Date().getFullYear();
-    //         });
-    
-    //         if (!firstResumeOfYear) {
-    //             return res.status(404).json({ message: "No valid resume date found for this employee in this year." });
-    //         }
-    
-    //         const startDate = new Date(firstResumeOfYear.resumeOfWorkDate);
-    //         const endDate = new Date(startDate);
-    //         endDate.setFullYear(endDate.getFullYear() + 1);  // 1-year range
-    
-    //         // Check if the current date is more than a year from resumeOfWorkDate
-    //         const currentDate = new Date();
-    //         let totalSickLeave = 0;
-    //         let totalAbsenceLeave = 0;
-    
-    //         // Reset the count after each year is completed
-    //         if (currentDate >= endDate) {
-    //             // Reset leave counts as 1 year is complete
-    //             totalSickLeave = 0;
-    //             totalAbsenceLeave = 0;
-                
-    //             // Update the startDate to the next year's anniversary
-    //             startDate.setFullYear(startDate.getFullYear() + 1);
-    //             endDate.setFullYear(endDate.getFullYear() + 1);  // Update the end date to the next year
-    //         }
-    
-    //         // Fetch employee leaves within the date range (current year or next year after reset)
-    //         const employeeLeaves = await AbsenceLeaveModule.find({
-    //             employeeId,
-    //             startDate: {
-    //                 $gte: startDate,
-    //                 $lt: endDate,
-    //             },
-    //         })
-    //         .populate('employeeId')
-    //         .sort({ createdAt: -1 });
-    
-    //         if (!employeeLeaves.length) {
-    //             return res.status(200).json({
-    //                 employeeId,
-    //                 totalSickLeave: 0,
-    //                 totalAbsenceLeave: 0,
-    //                 resumeStartDate: startDate,
-    //                 allLeaveRecords: [],
-    //             });
-    //         }
-    
-    //         // Calculate total sick & absence leave days
-    //         employeeLeaves.forEach(record => {
-    //             if (record.leaveType.toLowerCase() === 'sick') {
-    //                 totalSickLeave += record.totalSickLeaveDays || 0;
-    //             }
-    //             if (record.leaveType.toLowerCase() === 'absent') {
-    //                 totalAbsenceLeave += record.totalAbsenceLeaveDays || 0;
-    //             }
-    //         });
-    
-    //         res.json({
-    //             employeeId,
-    //             totalSickLeave,
-    //             totalAbsenceLeave,
-    //             resumeStartDate: startDate,
-    //             allLeaveRecords: employeeLeaves
-    //         });
-    //     } catch (error) {
-    //         console.error("Error in getTotalSickLeave:", error);
-    //         return next(error);
-    //     }
-    // }
-    
-    
-    // async getTotalSickLeave(req, res, next) {
-    //     const employeeId = req.params.id;
-    //     try {
-    //         // Fetch employee resume history
-    //         const employeeResume = await EmployeeResumeModel.find({ employeeId })
-    //             .sort({ resumeOfWorkDate: 1 }) // Oldest to newest sorting
+    //             .sort({ resumeOfWorkDate: -1 }) // Newest to oldest sorting
     //             .lean();
     
     //         console.log("Employee Resume Data:", employeeResume);
@@ -279,24 +190,14 @@ const AbsenceLeaveController ={
     //         let startDate;
     
     //         if (employeeResume.length > 0) {
-    //             // Find the first resume date of the current year
-    //             const firstResumeOfYear = employeeResume.find(resume =>
-    //                 new Date(resume.resumeOfWorkDate).getFullYear() === new Date().getFullYear()
-    //             );
-    
-    //             if (firstResumeOfYear) {
-    //                 startDate = new Date(firstResumeOfYear.resumeOfWorkDate);
-    //             } else {
-    //                 // If no resume found for the current year, take the first available resume
-    //                 startDate = new Date(employeeResume[0].resumeOfWorkDate);
-    //             }
+    //             // Take the latest resumeOfWorkDate
+    //             startDate = new Date(employeeResume[0].resumeOfWorkDate);
     //         } else {
     //             // If no resume exists, fetch employee joining date
     //             const employee = await newEmployee.findById(employeeId).lean();
-    //             if (employee && employee.dateOfJoining) {
+    //             if (employee?.dateOfJoining) {
     //                 startDate = new Date(employee.dateOfJoining);
     //             } else {
-    //                 // If no joining date found, return an error (NO DEFAULT DATE SET)
     //                 return res.status(404).json({ message: "No resume history or joining date found for this employee." });
     //             }
     //         }
@@ -324,16 +225,6 @@ const AbsenceLeaveController ={
     //         .populate('employeeId')
     //         .sort({ createdAt: -1 });
     
-    //         if (!employeeLeaves.length) {
-    //             return res.status(200).json({
-    //                 employeeId,
-    //                 totalSickLeave: 0,
-    //                 totalAbsenceLeave: 0,
-    //                 resumeStartDate: startDate,
-    //                 allLeaveRecords: [],
-    //             });
-    //         }
-    
     //         // Calculate total sick & absence leave
     //         employeeLeaves.forEach(record => {
     //             if (record.leaveType.toLowerCase() === 'sick') {
@@ -355,79 +246,56 @@ const AbsenceLeaveController ={
     //         console.error("Error in getTotalSickLeave:", error);
     //         return next(error);
     //     }
-    // }
-    async getTotalSickLeave(req, res, next) {
-        const employeeId = req.params.id;
-        try {
-            // Fetch employee resume history (latest first)
-            const employeeResume = await EmployeeResumeModel.find({ employeeId })
-                .sort({ resumeOfWorkDate: -1 }) // Newest to oldest sorting
-                .lean();
+    // },
     
-            console.log("Employee Resume Data:", employeeResume);
     
-            let startDate;
-    
-            if (employeeResume.length > 0) {
-                // Take the latest resumeOfWorkDate
-                startDate = new Date(employeeResume[0].resumeOfWorkDate);
-            } else {
-                // If no resume exists, fetch employee joining date
-                const employee = await newEmployee.findById(employeeId).lean();
-                if (employee?.dateOfJoining) {
-                    startDate = new Date(employee.dateOfJoining);
-                } else {
-                    return res.status(404).json({ message: "No resume history or joining date found for this employee." });
-                }
+async getTotalSickLeave(req, res, next) {
+    const employeeId = req.params.id;
+
+    try {
+        const currentDate = new Date();
+
+        // Calendar year range: Jan 1 to Dec 31
+        const startDate = new Date(currentDate.getFullYear(), 0, 1);
+        const endDate = new Date(currentDate.getFullYear() + 1, 0, 1);
+
+        let totalSickLeave = 0;
+        let totalAbsenceLeave = 0;
+
+        const employeeLeaves = await AbsenceLeaveModule.find({
+            employeeId,
+            startDate: { $gte: startDate, $lt: endDate },
+        })
+        .populate('employeeId')
+        .sort({ createdAt: -1 });
+
+        employeeLeaves.forEach(record => {
+            const type = (record.leaveType || '').toLowerCase();
+
+            if (type === 'sick') {
+                totalSickLeave += record.totalSickLeaveDays || 0;
             }
-    
-            const endDate = new Date(startDate);
-            endDate.setFullYear(endDate.getFullYear() + 1); // 1-year range
-    
-            const currentDate = new Date();
-            let totalSickLeave = 0;
-            let totalAbsenceLeave = 0;
-    
-            // If the current date is beyond the 1-year range, reset leave counts
-            if (currentDate >= endDate) {
-                totalSickLeave = 0;
-                totalAbsenceLeave = 0;
-                startDate.setFullYear(startDate.getFullYear() + 1);
-                endDate.setFullYear(endDate.getFullYear() + 1);
+
+            if (type === 'absent') {
+                totalAbsenceLeave += record.totalAbsenceLeaveDays || 0;
             }
-    
-            // Fetch employee leaves in the valid date range
-            const employeeLeaves = await AbsenceLeaveModule.find({
-                employeeId,
-                startDate: { $gte: startDate, $lt: endDate },
-            })
-            .populate('employeeId')
-            .sort({ createdAt: -1 });
-    
-            // Calculate total sick & absence leave
-            employeeLeaves.forEach(record => {
-                if (record.leaveType.toLowerCase() === 'sick') {
-                    totalSickLeave += record.totalSickLeaveDays || 0;
-                }
-                if (record.leaveType.toLowerCase() === 'absent') {
-                    totalAbsenceLeave += record.totalAbsenceLeaveDays || 0;
-                }
-            });
-    
-            res.json({
-                employeeId,
-                totalSickLeave,
-                totalAbsenceLeave,
-                resumeStartDate: startDate,
-                allLeaveRecords: employeeLeaves
-            });
-        } catch (error) {
-            console.error("Error in getTotalSickLeave:", error);
-            return next(error);
-        }
-    },
-    
-    
+        });
+
+        res.json({
+            employeeId,
+            year: currentDate.getFullYear(),
+            totalSickLeave,
+            totalAbsenceLeave,
+            yearStartDate: startDate,
+            yearEndDate: new Date(endDate.getTime() - 1),
+            allLeaveRecords: employeeLeaves
+        });
+
+    } catch (error) {
+        console.error("Error in getTotalSickLeave:", error);
+        return next(error);
+    }
+},
 
 
 // Get latest AbsenceLeave for each employee
