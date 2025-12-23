@@ -103,9 +103,11 @@ Route.get('/getEmployeeByIdWarning/:id', WarningFormController.getEmployeeByIdWa
 Route.post('/AbsenceLeave/',upload.none(), AbsenceLeaveController.AbsenceLeave)
 Route.put('/updateAbsenceLeave/:id',upload.none(), AbsenceLeaveController.updateAbsenceLeave)
 Route.delete('/deleteAbsence/:id', AbsenceLeaveController.deleteAbsence)  
+
 Route.get('/AllAbsenceLeave', AbsenceLeaveController.AllAbsenceLeave)    
 Route.get('/getEmployeeAbsenceLeave/:id', AbsenceLeaveController.getEmployeeAbsenceLeave) 
 Route.get('/getTotalSickLeave/:id', AbsenceLeaveController.getTotalSickLeave) 
+Route.get('/getEmployeeLatestAbsenceLeave', AbsenceLeaveController.getEmployeeLatestAbsenceLeave)
 
 //=======================================Notification=================================================================
 Route.get('/getNotification/', notificationController.getNotification) 

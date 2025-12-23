@@ -425,9 +425,58 @@ const AbsenceLeaveController ={
             console.error("Error in getTotalSickLeave:", error);
             return next(error);
         }
+    },
+    
+    
+
+
+// Get latest AbsenceLeave for each employee
+ async getEmployeeLatestAbsenceLeave (req, res, next) {
+    try {
+        const lastAbsenceLeave = await AbsenceLeaveModule.aggregate([
+            { $sort: { createdAt: -1 } },
+            {
+                $group: {
+                    _id: "$employeeId",
+                    latestAbsenceLeave: { $first: "$$ROOT" }
+                }
+            },
+            { $replaceRoot: { newRoot: "$latestAbsenceLeave" } },
+            {
+                $lookup: {
+                    from: "newEmployees",
+                    localField: "employeeId",
+                    foreignField: "_id",
+                    as: "employeeDetails"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$employeeDetails",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $match: {
+                    "employeeDetails.status": "Active"
+                }
+            }
+        ]);
+          // Ensure getters are applied
+            const updatedLastAbsentLeave = lastAbsenceLeave.map((leave) => {
+              if (leave.employeeDetails) {
+                // Convert employeeDetails to a Mongoose Document and apply getters
+                const employeeDoc = new newEmployee(leave.employeeDetails);
+                leave.employeeDetails = employeeDoc.toJSON({ getters: true });
+              } 
+              return leave;
+            });
+        res.json({lastAbsenceLeave: updatedLastAbsentLeave });
+    } catch (error) {
+        console.error('❌ Error:', error);
+        return next(error);
     }
-    
-    
-};
+}
+}
 
 module.exports = AbsenceLeaveController
