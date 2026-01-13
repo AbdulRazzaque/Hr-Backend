@@ -177,105 +177,33 @@ const AbsenceLeaveController ={
     },
 
 
-    // async getTotalSickLeave(req, res, next) {
-    //     const employeeId = req.params.id;
-    //     try {
-    //         // Fetch employee resume history (latest first)
-    //         const employeeResume = await EmployeeResumeModel.find({ employeeId })
-    //             .sort({ resumeOfWorkDate: -1 }) // Newest to oldest sorting
-    //             .lean();
-    
-    //         console.log("Employee Resume Data:", employeeResume);
-    
-    //         let startDate;
-    
-    //         if (employeeResume.length > 0) {
-    //             // Take the latest resumeOfWorkDate
-    //             startDate = new Date(employeeResume[0].resumeOfWorkDate);
-    //         } else {
-    //             // If no resume exists, fetch employee joining date
-    //             const employee = await newEmployee.findById(employeeId).lean();
-    //             if (employee?.dateOfJoining) {
-    //                 startDate = new Date(employee.dateOfJoining);
-    //             } else {
-    //                 return res.status(404).json({ message: "No resume history or joining date found for this employee." });
-    //             }
-    //         }
-    
-    //         const endDate = new Date(startDate);
-    //         endDate.setFullYear(endDate.getFullYear() + 1); // 1-year range
-    
-    //         const currentDate = new Date();
-    //         let totalSickLeave = 0;
-    //         let totalAbsenceLeave = 0;
-    
-    //         // If the current date is beyond the 1-year range, reset leave counts
-    //         if (currentDate >= endDate) {
-    //             totalSickLeave = 0;
-    //             totalAbsenceLeave = 0;
-    //             startDate.setFullYear(startDate.getFullYear() + 1);
-    //             endDate.setFullYear(endDate.getFullYear() + 1);
-    //         }
-    
-    //         // Fetch employee leaves in the valid date range
-    //         const employeeLeaves = await AbsenceLeaveModule.find({
-    //             employeeId,
-    //             startDate: { $gte: startDate, $lt: endDate },
-    //         })
-    //         .populate('employeeId')
-    //         .sort({ createdAt: -1 });
-    
-    //         // Calculate total sick & absence leave
-    //         employeeLeaves.forEach(record => {
-    //             if (record.leaveType.toLowerCase() === 'sick') {
-    //                 totalSickLeave += record.totalSickLeaveDays || 0;
-    //             }
-    //             if (record.leaveType.toLowerCase() === 'absent') {
-    //                 totalAbsenceLeave += record.totalAbsenceLeaveDays || 0;
-    //             }
-    //         });
-    
-    //         res.json({
-    //             employeeId,
-    //             totalSickLeave,
-    //             totalAbsenceLeave,
-    //             resumeStartDate: startDate,
-    //             allLeaveRecords: employeeLeaves
-    //         });
-    //     } catch (error) {
-    //         console.error("Error in getTotalSickLeave:", error);
-    //         return next(error);
-    //     }
-    // },
-    
+
     
 async getTotalSickLeave(req, res, next) {
     const employeeId = req.params.id;
-
     try {
-        const currentDate = new Date();
-
+        const now = new Date();
+        const year = now.getFullYear();
         // Calendar year range: Jan 1 to Dec 31
-        const startDate = new Date(currentDate.getFullYear(), 0, 1);
-        const endDate = new Date(currentDate.getFullYear() + 1, 0, 1);
+        const startDate = new Date(year, 0, 1);
+        const endDate = new Date(year + 1, 0, 1);
 
         let totalSickLeave = 0;
         let totalAbsenceLeave = 0;
 
+        // Use the correct date field for filtering (likely 'date' not 'startDate')
         const employeeLeaves = await AbsenceLeaveModule.find({
             employeeId,
-            startDate: { $gte: startDate, $lt: endDate },
+            date: { $gte: startDate, $lt: endDate },
         })
         .populate('employeeId')
         .sort({ createdAt: -1 });
 
         employeeLeaves.forEach(record => {
             const type = (record.leaveType || '').toLowerCase();
-
             if (type === 'sick') {
                 totalSickLeave += record.totalSickLeaveDays || 0;
             }
-
             if (type === 'absent') {
                 totalAbsenceLeave += record.totalAbsenceLeaveDays || 0;
             }
@@ -283,68 +211,234 @@ async getTotalSickLeave(req, res, next) {
 
         res.json({
             employeeId,
-            year: currentDate.getFullYear(),
+            year,
             totalSickLeave,
             totalAbsenceLeave,
             yearStartDate: startDate,
             yearEndDate: new Date(endDate.getTime() - 1),
             allLeaveRecords: employeeLeaves
         });
-
     } catch (error) {
         console.error("Error in getTotalSickLeave:", error);
         return next(error);
     }
 },
 
+async getSickLeaveByDate(req,res,next){
+  try { 
+   
+    const {startDate,endDate} = req.query;
+    
+    // Validate required query Parameters
+    if(!startDate,!endDate){ 
+      return res.status(400).json({
+        success:false,
+        message:"Please provide both StartDate and end Date in the query parameters.",
+      });
+    }
+ 
+    //Parse dates 
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    start.setHours(0, 0, 0, 0); // Start of the day in local time
+    end.setHours(23, 59, 59, 999); // End of the day in local time 
+    const leaves = await AbsenceLeaveModule.aggregate([
+      { 
+        $match: {
+          leaveStartDate: { $gte: start },
+          leaveEndDate: { $lte: end },
+        },
+      },
+      {
+        $lookup: {
+          from: 'newEmployees',
+          localField: 'employeeId',
+          foreignField: '_id',
+          as: 'employeeDetails',
+        },
+      },
+      {
+        $unwind: {
+          path: '$employeeDetails',
+          preserveNullAndEmptyArrays: false, // Remove records without an employee match
+        }, 
+      },
+      {
+        $match: {
+        //   'employeeDetails.status': 'Active',
+        "employeeDetails.status": { $in: ["Active", "Rejoin"] },
+        },
+      },
+      {
+        $project: {
+          leaveType: 1,
+          leaveStartDate: 1,
+          leaveEndDate: 1,
+          numberOfDayLeave:1,
+          lastNumberOfDayLeave:1, 
+    totalSickLeaveDays:1,
+    totalAbsenceLeaveDays:1,
+          comment:1,
+          status: 1,
+          createdAt: 1,
+          employeeDetails: 1, // Retain renamed field
+          
+        },
+      },
+    ]);
+      // Ensure getters are applied
+      const EmployeeLeave = leaves.map((leave) => {
+        if (leave.employeeDetails) {
+          // Convert employeeDetails to a Mongoose Document and apply getters
+          const employeeDoc = new newEmployee(leave.employeeDetails);
+          leave.employeeDetails = employeeDoc.toJSON({ getters: true });
+        } 
+        return leave;
+      });
+  return res.status(200).json({ 
+    success: true,
+    message: 'Leaves fetched successfully.',
+    data: EmployeeLeave,
+  });
+  
+  } catch (error) {
+    console.error('❌ Error:', error);
+    return next(error)
+    
+  }
+},
 
 // Get latest AbsenceLeave for each employee
- async getEmployeeLatestAbsenceLeave (req, res, next) {
-    try {
-        const lastAbsenceLeave = await AbsenceLeaveModule.aggregate([
-            { $sort: { createdAt: -1 } },
-            {
-                $group: {
-                    _id: "$employeeId",
-                    latestAbsenceLeave: { $first: "$$ROOT" }
-                }
-            },
-            { $replaceRoot: { newRoot: "$latestAbsenceLeave" } },
-            {
-                $lookup: {
-                    from: "newEmployees",
-                    localField: "employeeId",
-                    foreignField: "_id",
-                    as: "employeeDetails"
-                }
-            },
-            {
-                $unwind: {
-                    path: "$employeeDetails",
-                    preserveNullAndEmptyArrays: true
-                }
-            },
-            {
-                $match: {
-                    "employeeDetails.status": "Active"
-                }
-            }
-        ]);
-          // Ensure getters are applied
-            const updatedLastAbsentLeave = lastAbsenceLeave.map((leave) => {
-              if (leave.employeeDetails) {
-                // Convert employeeDetails to a Mongoose Document and apply getters
-                const employeeDoc = new newEmployee(leave.employeeDetails);
-                leave.employeeDetails = employeeDoc.toJSON({ getters: true });
-              } 
-              return leave;
-            });
-        res.json({lastAbsenceLeave: updatedLastAbsentLeave });
-    } catch (error) {
-        console.error('❌ Error:', error);
-        return next(error);
-    }
+//  async getEmployeeLatestAbsenceLeave (req, res, next) {
+//     try {
+//         const lastAbsenceLeave = await AbsenceLeaveModule.aggregate([
+//             { $sort: { createdAt: -1 } },
+//             {
+//                 $group: {
+//                     _id: "$employeeId",
+//                     latestAbsenceLeave: { $first: "$$ROOT" }
+//                 }
+//             },
+//             { $replaceRoot: { newRoot: "$latestAbsenceLeave" } },
+//             {
+//                 $lookup: {
+//                     from: "newEmployees",
+//                     localField: "employeeId",
+//                     foreignField: "_id",
+//                     as: "employeeDetails"
+//                 }
+//             },
+//             {
+//                 $unwind: {
+//                     path: "$employeeDetails",
+//                     preserveNullAndEmptyArrays: true
+//                 }
+//             },
+//             {
+//                 $match: {
+//                     "employeeDetails.status": "Active"
+//                 }
+//             }
+//         ]);
+//           // Ensure getters are applied
+//             const updatedLastAbsentLeave = lastAbsenceLeave.map((leave) => {
+//               if (leave.employeeDetails) {
+//                 // Convert employeeDetails to a Mongoose Document and apply getters
+//                 const employeeDoc = new newEmployee(leave.employeeDetails);
+//                 leave.employeeDetails = employeeDoc.toJSON({ getters: true });
+//               } 
+//               return leave;
+//             });
+//         res.json({lastAbsenceLeave: updatedLastAbsentLeave });
+//     } catch (error) {
+//         console.error('❌ Error:', error);
+//         return next(error);
+//     }
+// }
+
+async getEmployeeLatestAbsenceLeave(req, res, next) {
+  try {
+    // ✅ Current year start & end
+    const startOfYear = new Date(new Date().getFullYear(), 0, 1);
+    const endOfYear = new Date(
+      new Date().getFullYear(),
+      11,
+      31,
+      23,
+      59,
+      59
+    );
+
+    const lastAbsenceLeave = await AbsenceLeaveModule.aggregate([
+      // ✅ Only current year data
+      {
+        $match: {
+          createdAt: {
+            $gte: startOfYear,
+            $lte: endOfYear,
+          },
+        },
+      },
+
+      // ✅ Latest record first
+      { $sort: { createdAt: -1 } },
+
+      // ✅ Latest absence leave per employee
+      {
+        $group: {
+          _id: "$employeeId",
+          latestAbsenceLeave: { $first: "$$ROOT" },
+        },
+      },
+
+      // ✅ Replace root with latest record
+      { $replaceRoot: { newRoot: "$latestAbsenceLeave" } },
+
+      // ✅ Join employee details
+      {
+        $lookup: {
+          from: "newEmployees",
+          localField: "employeeId",
+          foreignField: "_id",
+          as: "employeeDetails",
+        },
+      },
+
+      // ✅ Unwind employee details
+      {
+        $unwind: {
+          path: "$employeeDetails",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+
+      // ✅ Only active employees
+      {
+        $match: {
+           "employeeDetails.status": { $in: ["Active", "Rejoin"] },
+        },
+      },
+    ]);
+
+    // ✅ Apply getters on employeeDetails
+    const updatedLastAbsentLeave = lastAbsenceLeave.map((leave) => {
+      if (leave.employeeDetails) {
+        const employeeDoc = new newEmployee(leave.employeeDetails);
+        leave.employeeDetails = employeeDoc.toJSON({ getters: true });
+      }
+      return leave;
+    });
+
+    return res.status(200).json({
+      success: true,
+      lastAbsenceLeave: updatedLastAbsentLeave,
+    });
+  } catch (error) {
+    console.error("❌ Error:", error);
+    return next(error);
+  }
 }
+
 }
 
 module.exports = AbsenceLeaveController

@@ -108,6 +108,7 @@ Route.get('/AllAbsenceLeave', AbsenceLeaveController.AllAbsenceLeave)
 Route.get('/getEmployeeAbsenceLeave/:id', AbsenceLeaveController.getEmployeeAbsenceLeave) 
 Route.get('/getTotalSickLeave/:id', AbsenceLeaveController.getTotalSickLeave) 
 Route.get('/getEmployeeLatestAbsenceLeave', AbsenceLeaveController.getEmployeeLatestAbsenceLeave)
+Route.get('/getSickLeaveByDate', AbsenceLeaveController.getSickLeaveByDate)
 
 //=======================================Notification=================================================================
 Route.get('/getNotification/', notificationController.getNotification) 
