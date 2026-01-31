@@ -17,7 +17,9 @@ const AbsenceLeaveController ={
             AbsenceLeaveStartDate:Joi.date().allow(null,''),
             AbsenceLeaveEndDate:Joi.date().allow(null,''),
             totalAbsenceLeaveDays:Joi.number().allow(null,''),
-           
+            maternityLeaveStartDate:Joi.date().allow(null,''),
+            maternityLeaveEndDate:Joi.date().allow(null,''), 
+            totalMaternityLeaveDays:Joi.number().allow(null,''),
             comment:Joi.string().allow(null,'')
         });
     
@@ -36,6 +38,9 @@ const AbsenceLeaveController ={
             AbsenceLeaveStartDate,
             AbsenceLeaveEndDate,
             totalAbsenceLeaveDays,
+            maternityLeaveStartDate,
+            maternityLeaveEndDate,
+            totalMaternityLeaveDays,
             comment
         } = req.body;
     
@@ -55,6 +60,9 @@ const AbsenceLeaveController ={
                 totalAbsenceLeaveDays,
                 AbsenceLeaveStartDate,
                 AbsenceLeaveEndDate,
+                maternityLeaveStartDate,
+                maternityLeaveEndDate,
+                totalMaternityLeaveDays,
                 comment
             });
     
@@ -79,7 +87,9 @@ const AbsenceLeaveController ={
             AbsenceLeaveStartDate:Joi.date().allow(null,''),
             AbsenceLeaveEndDate:Joi.date().allow(null,''),
             totalAbsenceLeaveDays:Joi.number().allow(null,''),
-           
+            maternityLeaveStartDate:Joi.date().allow(null,''),
+            maternityLeaveEndDate:Joi.date().allow(null,''), 
+            totalMaternityLeaveDays:Joi.number().allow(null,''),
             comment:Joi.string().allow(null,'')
         })
       
@@ -99,6 +109,9 @@ const AbsenceLeaveController ={
             totalAbsenceLeaveDays,
             AbsenceLeaveStartDate,
             AbsenceLeaveEndDate,
+            maternityLeaveStartDate,
+            maternityLeaveEndDate,
+            totalMaternityLeaveDays,
             comment
         } = req.body
 
@@ -115,6 +128,9 @@ const AbsenceLeaveController ={
                 AbsenceLeaveStartDate,
                 AbsenceLeaveEndDate,
                 totalAbsenceLeaveDays,
+                maternityLeaveStartDate,
+                maternityLeaveEndDate,
+                totalMaternityLeaveDays,
                 comment
                 },
                 {new:true}
@@ -190,6 +206,7 @@ async getTotalSickLeave(req, res, next) {
 
         let totalSickLeave = 0;
         let totalAbsenceLeave = 0;
+        let totalMaternityLeaveDays = 0;
 
         // Use the correct date field for filtering (likely 'date' not 'startDate')
         const employeeLeaves = await AbsenceLeaveModule.find({
@@ -207,13 +224,17 @@ async getTotalSickLeave(req, res, next) {
             if (type === 'absent') {
                 totalAbsenceLeave += record.totalAbsenceLeaveDays || 0;
             }
+            if (type === 'maternity') {
+              totalMaternityLeaveDays += record.totalMaternityLeaveDays || 0;
+            }
         });
-
+         
         res.json({
             employeeId,
             year,
             totalSickLeave,
             totalAbsenceLeave,
+            totalMaternityLeaveDays,
             yearStartDate: startDate,
             yearEndDate: new Date(endDate.getTime() - 1),
             allLeaveRecords: employeeLeaves

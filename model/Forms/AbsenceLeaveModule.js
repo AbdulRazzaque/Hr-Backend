@@ -12,6 +12,9 @@ const AbsenceLeaveSchema = new Schema({
     AbsenceLeaveStartDate:{type:Date},
     AbsenceLeaveEndDate:{type:Date}, 
     totalAbsenceLeaveDays:{type:Number},
+    maternityLeaveStartDate:{type:Date},
+    maternityLeaveEndDate:{type:Date}, 
+    totalMaternityLeaveDays:{type:Number},
     comment:{type:String}
 },{timestamps:true,toJSON:{getters:true}})
 
