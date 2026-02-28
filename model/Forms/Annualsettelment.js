@@ -12,7 +12,7 @@ const annualsettelmentSchema = new Schema(
     from: { type: String, require: true },
     leaveStartDate: { type: Date, require: true },
 
-    resumingVacation: { type: Date, require: true },
+    resumingVacation: { type: Date,  require: false},
 
   },
   { timestamps: true, toJSON: { getters: true } }

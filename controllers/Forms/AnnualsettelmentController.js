@@ -38,7 +38,7 @@ const AnnualsettelmentController = {
         to: Joi.string().required(),
         from: Joi.string().required(),
         leaveStartDate: Joi.date().required(),
-        resumingVacation: Joi.date().required(),
+        resumingVacation:  Joi.date().allow(null, '').optional(),
 
 
 
@@ -118,7 +118,7 @@ const AnnualsettelmentController = {
         to: Joi.string().required(),
         from: Joi.string().required(),
         leaveStartDate: Joi.date().required(),
-        resumingVacation: Joi.date().required(),
+        resumingVacation:  Joi.date().allow(null, '').optional(),
       });
 
       const { error } = AnnualsettelmentSchema.validate(req.body);
