@@ -91,17 +91,17 @@ const exitForLeaveController = {
     console.log(req.body)
       try {
        // 1️⃣ Pehle latest existing leave nikal lo
-      const latestLeave = await ExitofLeave.findOne({ employeeId }).sort({ _id: -1 });
+      // const latestLeave = await ExitofLeave.findOne({ employeeId }).sort({ _id: -1 });
 
-      // 2️⃣ Agar mila to previous leave ka data update karo (only if values are provided)
-      if (latestLeave && (lastLeaveStartDate || lastLeaveEndDate || lastNumberOfDayLeave || lastLeaveType)) {
-        if (lastLeaveStartDate) latestLeave.leaveStartDate = lastLeaveStartDate;
-        if (lastLeaveEndDate) latestLeave.leaveEndDate = lastLeaveEndDate;
-        if (lastNumberOfDayLeave) latestLeave.numberOfDayLeave = lastNumberOfDayLeave;
-        if (lastLeaveType) latestLeave.lastLeaveType = lastLeaveType;
-        await latestLeave.save();
-        // console.log("Previous leave updated successfully:", latestLeave);
-      }
+      // // 2️⃣ Agar mila to previous leave ka data update karo (only if values are provided)
+      // if (latestLeave && (lastLeaveStartDate || lastLeaveEndDate || lastNumberOfDayLeave || lastLeaveType)) {
+      //   if (lastLeaveStartDate) latestLeave.leaveStartDate = lastLeaveStartDate;
+      //   if (lastLeaveEndDate) latestLeave.leaveEndDate = lastLeaveEndDate;
+      //   if (lastNumberOfDayLeave) latestLeave.numberOfDayLeave = lastNumberOfDayLeave;
+      //   if (lastLeaveType) latestLeave.lastLeaveType = lastLeaveType;
+      //   await latestLeave.save();
+      //   // console.log("Previous leave updated successfully:", latestLeave);
+      // }
 
         // Create a new exit leave entry
       const  exitofleave = await ExitofLeave.create({

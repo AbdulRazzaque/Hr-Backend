@@ -13,7 +13,8 @@ const annualsettelmentSchema = new Schema(
     leaveStartDate: { type: Date, require: true },
 
     resumingVacation: { type: Date,  require: false},
-
+    lastAnnualLeaveStartDate: { type: Date,  require: false},
+    lastAnnualLeaveEndDate: { type: Date,  require: false},
   },
   { timestamps: true, toJSON: { getters: true } }
 );

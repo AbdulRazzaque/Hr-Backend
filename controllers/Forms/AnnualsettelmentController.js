@@ -4,6 +4,7 @@ const path = require("path");
 const Joi = require("joi");
 const Annualsettelment = require("../../model/Forms/Annualsettelment");
 const newEmployee = require("../../model/Forms/newEmployee");
+const exitofLeave = require("../../model/Forms/exitofLeave");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, "uploads/"),
@@ -39,7 +40,8 @@ const AnnualsettelmentController = {
         from: Joi.string().required(),
         leaveStartDate: Joi.date().required(),
         resumingVacation:  Joi.date().allow(null, '').optional(),
-
+        lastAnnualLeaveStartDate:  Joi.date().allow(null, '').optional(),
+        lastAnnualLeaveEndDate:  Joi.date().allow(null, '').optional(),
 
 
       
@@ -67,7 +69,8 @@ const AnnualsettelmentController = {
 
         resumingVacation,
 
-    
+        lastAnnualLeaveStartDate,
+        lastAnnualLeaveEndDate,
       } = req.body;
 
       let annualsettelment;
@@ -85,6 +88,8 @@ const AnnualsettelmentController = {
           from,
           leaveStartDate,
           resumingVacation,
+          lastAnnualLeaveStartDate,
+          lastAnnualLeaveEndDate,
         });
         res.status(201).json({
           message: `Annual settlement successfully added for ${employee.name}`,
@@ -119,6 +124,8 @@ const AnnualsettelmentController = {
         from: Joi.string().required(),
         leaveStartDate: Joi.date().required(),
         resumingVacation:  Joi.date().allow(null, '').optional(),
+        lastAnnualLeaveStartDate:  Joi.date().allow(null, '').optional(),
+        lastAnnualLeaveEndDate:  Joi.date().allow(null, '').optional(),
       });
 
       const { error } = AnnualsettelmentSchema.validate(req.body);
@@ -144,6 +151,8 @@ const AnnualsettelmentController = {
         leaveStartDate,
 
         resumingVacation,
+        lastAnnualLeaveStartDate,
+        lastAnnualLeaveEndDate,
       } = req.body;
 
       let UpdateAnnualsettelment;
@@ -159,7 +168,8 @@ const AnnualsettelmentController = {
             to,
             from,
             leaveStartDate,
-    
+            lastAnnualLeaveStartDate,
+            lastAnnualLeaveEndDate,
             resumingVacation,
           },
           { new: true }
@@ -243,6 +253,25 @@ const AnnualsettelmentController = {
     res.json({ oneAnnualsettelment: oneAnnualsettelment });
   },
   
+  async getEmployeeLastAnnualLeave(req, res, next) {
+    try {
+  
+      const employeeId = req.params.employeeId;
+  
+      const lastAnnualLeave = await exitofLeave.findOne({
+        employeeId,
+        lastLeaveType: "Annual",
+      }).sort({ _id: -1 });
+  
+      return res.json({
+        lastAnnualLeave,
+      });
+  
+    } catch (error) {
+      return next(error);
+    }
+  }
+
 };
 
 module.exports = AnnualsettelmentController;

@@ -90,6 +90,7 @@ Route.post('/Annualsettelment', auth,AnnualsettelmentController.Annualsettelment
 Route.put('/UpdateAnnualsettelment/:id', auth,AnnualsettelmentController.UpdateAnnualsettelment)
 Route.delete('/deleteAnnualsettelment/:id', auth,AnnualsettelmentController.deleteAnnualsettelment)
 Route.get('/getEmployeeAnnualSettlements/:employeeId',AnnualsettelmentController.getEmployeeAnnualSettlements)
+Route.get("/getEmployeeLastAnnualLeave/:employeeId",auth,AnnualsettelmentController.getEmployeeLastAnnualLeave);
 //=====================================================================================
  
 //=========================Warning======================================
