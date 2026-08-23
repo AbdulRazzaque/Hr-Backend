@@ -27,6 +27,7 @@ app.use('/uploads', express.static('uploads'));
 global.appRoot = path.resolve(__dirname);
 
 // 📌 MongoDB Connection
+mongoose.set('strictQuery', false);
 mongoose
   .connect(process.env.DATA_BASE_CONNECTION, {
     useNewUrlParser: true,
@@ -38,12 +39,12 @@ mongoose
 // 📌 Socket.io Setup
 const io = socketIo(server, {
   cors: {
-    
-    origin: ['http://192.168.1.10:778','https://hr-backend-r6zm.onrender.com'], // Server Side
+
+    origin: ['http://192.168.1.10:778', 'https://hr-backend-r6zm.onrender.com'], // Server Side
     // origin: 'http://192.168.1.98:3000', // Local Side)
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    Credential:true
-  }, 
+    Credential: true
+  },
 });
 
 // 📌 Socket.io Events
