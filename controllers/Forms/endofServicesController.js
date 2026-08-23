@@ -263,16 +263,44 @@ async allRejoinEmployee(req, res, next) {
 //   //---------------------All Employee API -------------------------
 async allEndofservice(req, res, next) {
   try {
-    let allEndofservice = await EndofServices.find({})
-      .populate({
-        path: "employeeId",
-        match: { status: "Deactive" } // must match EXACT value in DB
-      })
+    // 1. Fetch all employees with status "Deactive"
+    const deactiveEmployees = await NewEmployee.find({ status: "Deactive" })
       .select("-__v -updatedAt")
       .sort({ _id: -1 });
 
-    // Important: filter out those where employeeId === null
-    allEndofservice = allEndofservice.filter(e => e.employeeId);
+    // 2. Fetch all EndofServices records for these employees
+    const deactiveEmployeeIds = deactiveEmployees.map((emp) => emp._id);
+    const endofServicesRecords = await EndofServices.find({
+      employeeId: { $in: deactiveEmployeeIds }
+    }).select("-__v -updatedAt");
+
+    // Map EndofServices records by employeeId
+    const eosMap = new Map();
+    endofServicesRecords.forEach((eos) => {
+      eosMap.set(eos.employeeId.toString(), eos.toObject());
+    });
+
+    // 3. Merge data so every Deactive employee appears on the Left Employee page
+    const allEndofservice = deactiveEmployees.map((emp) => {
+      const eos = eosMap.get(emp._id.toString());
+      if (eos) {
+        return {
+          ...eos,
+          employeeId: emp
+        };
+      } else {
+        return {
+          _id: emp._id,
+          employeeId: emp,
+          date: null,
+          lastWorkingDate: null,
+          resumingofLastVacation: null,
+          exitType: "",
+          subject: "",
+          other: ""
+        };
+      }
+    });
 
     res.json({ allEndofservice });
   } catch (error) {
