@@ -44,6 +44,96 @@ const AbsenceLeaveController = {
       comment
     } = req.body;
 
+    const normalizedType = leaveType ? leaveType.trim().toLowerCase() : '';
+
+    if (normalizedType === 'sick') {
+      if (!leaveStartDate) {
+        return res.status(400).json({ message: "Leave Start Date is required." });
+      }
+      if (!leaveEndDate) {
+        return res.status(400).json({ message: "Leave End Date is required." });
+      }
+      const start = new Date(leaveStartDate);
+      const end = new Date(leaveEndDate);
+      if (isNaN(start.getTime())) {
+        return res.status(400).json({ message: "Invalid Leave Start Date." });
+      }
+      if (isNaN(end.getTime())) {
+        return res.status(400).json({ message: "Invalid Leave End Date." });
+      }
+      const sOnly = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+      const eOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+      if (eOnly < sOnly) {
+        return res.status(400).json({ message: "End Date must never be earlier than Start Date." });
+      }
+    } else if (normalizedType === 'absent') {
+      if (!AbsenceLeaveStartDate) {
+        return res.status(400).json({ message: "Leave Absent Start Date is required." });
+      }
+      if (!AbsenceLeaveEndDate) {
+        return res.status(400).json({ message: "Leave Absent End Date is required." });
+      }
+      const start = new Date(AbsenceLeaveStartDate);
+      const end = new Date(AbsenceLeaveEndDate);
+      if (isNaN(start.getTime())) {
+        return res.status(400).json({ message: "Invalid Leave Absent Start Date." });
+      }
+      if (isNaN(end.getTime())) {
+        return res.status(400).json({ message: "Invalid Leave Absent End Date." });
+      }
+      const sOnly = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+      const eOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+      if (eOnly < sOnly) {
+        return res.status(400).json({ message: "End Date must never be earlier than Start Date." });
+      }
+    } else if (normalizedType === 'maternity') {
+      if (!maternityLeaveStartDate) {
+        return res.status(400).json({ message: "Leave Maternity Start Date is required." });
+      }
+      if (!maternityLeaveEndDate) {
+        return res.status(400).json({ message: "Leave Maternity End Date is required." });
+      }
+      const start = new Date(maternityLeaveStartDate);
+      const end = new Date(maternityLeaveEndDate);
+      if (isNaN(start.getTime())) {
+        return res.status(400).json({ message: "Invalid Leave Maternity Start Date." });
+      }
+      if (isNaN(end.getTime())) {
+        return res.status(400).json({ message: "Invalid Leave Maternity End Date." });
+      }
+      const sOnly = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+      const eOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+      if (eOnly < sOnly) {
+        return res.status(400).json({ message: "End Date must never be earlier than Start Date." });
+      }
+    } else {
+      return res.status(400).json({ message: "Please select a valid leave type." });
+    }
+
+    let finalSickDays = null;
+    let finalAbsenceDays = null;
+    let finalMaternityDays = null;
+
+    if (normalizedType === 'sick') {
+      const s = new Date(leaveStartDate);
+      const e = new Date(leaveEndDate);
+      const sOnly = new Date(s.getFullYear(), s.getMonth(), s.getDate());
+      const eOnly = new Date(e.getFullYear(), e.getMonth(), e.getDate());
+      finalSickDays = Math.round((eOnly - sOnly) / (1000 * 60 * 60 * 24)) + 1;
+    } else if (normalizedType === 'absent') {
+      const s = new Date(AbsenceLeaveStartDate);
+      const e = new Date(AbsenceLeaveEndDate);
+      const sOnly = new Date(s.getFullYear(), s.getMonth(), s.getDate());
+      const eOnly = new Date(e.getFullYear(), e.getMonth(), e.getDate());
+      finalAbsenceDays = Math.round((eOnly - sOnly) / (1000 * 60 * 60 * 24)) + 1;
+    } else if (normalizedType === 'maternity') {
+      const s = new Date(maternityLeaveStartDate);
+      const e = new Date(maternityLeaveEndDate);
+      const sOnly = new Date(s.getFullYear(), s.getMonth(), s.getDate());
+      const eOnly = new Date(e.getFullYear(), e.getMonth(), e.getDate());
+      finalMaternityDays = Math.round((eOnly - sOnly) / (1000 * 60 * 60 * 24)) + 1;
+    }
+
     try {
       const employee = await newEmployee.findById(employeeId).select("name");
       if (!employee) {
@@ -54,15 +144,15 @@ const AbsenceLeaveController = {
         employeeId,
         date,
         leaveType,
-        leaveStartDate,
-        leaveEndDate,
-        totalSickLeaveDays,
-        totalAbsenceLeaveDays,
-        AbsenceLeaveStartDate,
-        AbsenceLeaveEndDate,
-        maternityLeaveStartDate,
-        maternityLeaveEndDate,
-        totalMaternityLeaveDays,
+        leaveStartDate: normalizedType === 'sick' ? leaveStartDate : null,
+        leaveEndDate: normalizedType === 'sick' ? leaveEndDate : null,
+        totalSickLeaveDays: normalizedType === 'sick' ? (totalSickLeaveDays || finalSickDays) : null,
+        AbsenceLeaveStartDate: normalizedType === 'absent' ? AbsenceLeaveStartDate : null,
+        AbsenceLeaveEndDate: normalizedType === 'absent' ? AbsenceLeaveEndDate : null,
+        totalAbsenceLeaveDays: normalizedType === 'absent' ? (totalAbsenceLeaveDays || finalAbsenceDays) : null,
+        maternityLeaveStartDate: normalizedType === 'maternity' ? maternityLeaveStartDate : null,
+        maternityLeaveEndDate: normalizedType === 'maternity' ? maternityLeaveEndDate : null,
+        totalMaternityLeaveDays: normalizedType === 'maternity' ? (totalMaternityLeaveDays || finalMaternityDays) : null,
         comment
       });
 
@@ -106,14 +196,104 @@ const AbsenceLeaveController = {
       leaveStartDate,
       leaveEndDate,
       totalSickLeaveDays,
-      totalAbsenceLeaveDays,
       AbsenceLeaveStartDate,
       AbsenceLeaveEndDate,
+      totalAbsenceLeaveDays,
       maternityLeaveStartDate,
       maternityLeaveEndDate,
       totalMaternityLeaveDays,
       comment
-    } = req.body
+    } = req.body;
+
+    const normalizedType = leaveType ? leaveType.trim().toLowerCase() : '';
+
+    if (normalizedType === 'sick') {
+      if (!leaveStartDate) {
+        return res.status(400).json({ message: "Leave Start Date is required." });
+      }
+      if (!leaveEndDate) {
+        return res.status(400).json({ message: "Leave End Date is required." });
+      }
+      const start = new Date(leaveStartDate);
+      const end = new Date(leaveEndDate);
+      if (isNaN(start.getTime())) {
+        return res.status(400).json({ message: "Invalid Leave Start Date." });
+      }
+      if (isNaN(end.getTime())) {
+        return res.status(400).json({ message: "Invalid Leave End Date." });
+      }
+      const sOnly = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+      const eOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+      if (eOnly < sOnly) {
+        return res.status(400).json({ message: "End Date must never be earlier than Start Date." });
+      }
+    } else if (normalizedType === 'absent') {
+      if (!AbsenceLeaveStartDate) {
+        return res.status(400).json({ message: "Leave Absent Start Date is required." });
+      }
+      if (!AbsenceLeaveEndDate) {
+        return res.status(400).json({ message: "Leave Absent End Date is required." });
+      }
+      const start = new Date(AbsenceLeaveStartDate);
+      const end = new Date(AbsenceLeaveEndDate);
+      if (isNaN(start.getTime())) {
+        return res.status(400).json({ message: "Invalid Leave Absent Start Date." });
+      }
+      if (isNaN(end.getTime())) {
+        return res.status(400).json({ message: "Invalid Leave Absent End Date." });
+      }
+      const sOnly = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+      const eOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+      if (eOnly < sOnly) {
+        return res.status(400).json({ message: "End Date must never be earlier than Start Date." });
+      }
+    } else if (normalizedType === 'maternity') {
+      if (!maternityLeaveStartDate) {
+        return res.status(400).json({ message: "Leave Maternity Start Date is required." });
+      }
+      if (!maternityLeaveEndDate) {
+        return res.status(400).json({ message: "Leave Maternity End Date is required." });
+      }
+      const start = new Date(maternityLeaveStartDate);
+      const end = new Date(maternityLeaveEndDate);
+      if (isNaN(start.getTime())) {
+        return res.status(400).json({ message: "Invalid Leave Maternity Start Date." });
+      }
+      if (isNaN(end.getTime())) {
+        return res.status(400).json({ message: "Invalid Leave Maternity End Date." });
+      }
+      const sOnly = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+      const eOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+      if (eOnly < sOnly) {
+        return res.status(400).json({ message: "End Date must never be earlier than Start Date." });
+      }
+    } else {
+      return res.status(400).json({ message: "Please select a valid leave type." });
+    }
+
+    let finalSickDays = null;
+    let finalAbsenceDays = null;
+    let finalMaternityDays = null;
+
+    if (normalizedType === 'sick') {
+      const s = new Date(leaveStartDate);
+      const e = new Date(leaveEndDate);
+      const sOnly = new Date(s.getFullYear(), s.getMonth(), s.getDate());
+      const eOnly = new Date(e.getFullYear(), e.getMonth(), e.getDate());
+      finalSickDays = Math.round((eOnly - sOnly) / (1000 * 60 * 60 * 24)) + 1;
+    } else if (normalizedType === 'absent') {
+      const s = new Date(AbsenceLeaveStartDate);
+      const e = new Date(AbsenceLeaveEndDate);
+      const sOnly = new Date(s.getFullYear(), s.getMonth(), s.getDate());
+      const eOnly = new Date(e.getFullYear(), e.getMonth(), e.getDate());
+      finalAbsenceDays = Math.round((eOnly - sOnly) / (1000 * 60 * 60 * 24)) + 1;
+    } else if (normalizedType === 'maternity') {
+      const s = new Date(maternityLeaveStartDate);
+      const e = new Date(maternityLeaveEndDate);
+      const sOnly = new Date(s.getFullYear(), s.getMonth(), s.getDate());
+      const eOnly = new Date(e.getFullYear(), e.getMonth(), e.getDate());
+      finalMaternityDays = Math.round((eOnly - sOnly) / (1000 * 60 * 60 * 24)) + 1;
+    }
 
     try {
       const updateAbsence = await AbsenceLeaveModule.findOneAndUpdate(
@@ -122,15 +302,15 @@ const AbsenceLeaveController = {
           employeeId,
           date,
           leaveType,
-          leaveStartDate,
-          leaveEndDate,
-          totalSickLeaveDays,
-          AbsenceLeaveStartDate,
-          AbsenceLeaveEndDate,
-          totalAbsenceLeaveDays,
-          maternityLeaveStartDate,
-          maternityLeaveEndDate,
-          totalMaternityLeaveDays,
+          leaveStartDate: normalizedType === 'sick' ? leaveStartDate : null,
+          leaveEndDate: normalizedType === 'sick' ? leaveEndDate : null,
+          totalSickLeaveDays: normalizedType === 'sick' ? (totalSickLeaveDays || finalSickDays) : null,
+          AbsenceLeaveStartDate: normalizedType === 'absent' ? AbsenceLeaveStartDate : null,
+          AbsenceLeaveEndDate: normalizedType === 'absent' ? AbsenceLeaveEndDate : null,
+          totalAbsenceLeaveDays: normalizedType === 'absent' ? (totalAbsenceLeaveDays || finalAbsenceDays) : null,
+          maternityLeaveStartDate: normalizedType === 'maternity' ? maternityLeaveStartDate : null,
+          maternityLeaveEndDate: normalizedType === 'maternity' ? maternityLeaveEndDate : null,
+          totalMaternityLeaveDays: normalizedType === 'maternity' ? (totalMaternityLeaveDays || finalMaternityDays) : null,
           comment
         },
         { new: true }
