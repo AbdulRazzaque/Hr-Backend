@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
@@ -5,7 +6,8 @@ const Joi = require("joi");
 const ExitofLeave = require("../../model/Forms/exitofLeave");
 const exitofLeave = require("../../model/Forms/exitofLeave");
 const newEmployee = require("../../model/Forms/newEmployee");
-const moment = require('moment')
+const moment = require('moment');
+process.env.TZ = process.env.TZ || 'Asia/Qatar';
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, "uploads/"),
@@ -342,19 +344,68 @@ async getEmployeeLeave(req,res,next){
   }
 },
 
-async CheckEligibleEmployee(req,res,next){
-  const id = req.params.id
-  const fiveYearsLater = moment().subtract(5, 'years'); // Date 5 years ago
-  const employee = await newEmployee.find({_id:id});
-  if(!employee){
-    return res.status(404).json({ message: "Employee not found" });
-  }
+async CheckEligibleEmployee(req, res, next) {
+  try {
+    const id = req.params.id;
+    const leaveStartDateRaw =
+      req.query.leaveStartDate ||
+      req.query.startDate ||
+      req.params.leaveStartDate ||
+      req.body?.leaveStartDate ||
+      req.body?.startDate;
 
-  const eligibilityMessage = moment(employee[0].dateOfJoining).isBefore(fiveYearsLater)
-  ? " eligible for 28 days of leave"
-  : " eligible for 21 days of leave";
-  return res.send(eligibilityMessage)
-} ,
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid employee ID" });
+    }
+
+    if (!leaveStartDateRaw) {
+      return res.status(400).json({ message: "Leave start date is required" });
+    }
+
+    const parseDate = (val) => {
+      if (!val) return null;
+      if (moment.isMoment(val) || val instanceof Date) return moment(val).startOf("day");
+      if (typeof val === "string") {
+        const m = moment(val, ["YYYY-MM-DD", "DD/MM/YYYY", moment.ISO_8601], true);
+        if (m.isValid()) return m.startOf("day");
+        const fallback = moment(val);
+        if (fallback.isValid()) return fallback.startOf("day");
+      }
+      return null;
+    };
+
+    const leaveStart = parseDate(leaveStartDateRaw);
+    if (!leaveStart || !leaveStart.isValid()) {
+      return res.status(400).json({ message: "Invalid leave start date" });
+    }
+
+    const employee = await newEmployee.findById(id);
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    if (!employee.dateOfJoining) {
+      return res.status(400).json({ message: "Employee date of joining is missing" });
+    }
+
+    const doj = parseDate(employee.dateOfJoining);
+    if (!doj || !doj.isValid()) {
+      return res.status(400).json({ message: "Employee date of joining is invalid" });
+    }
+
+    const fiveYearsAfterJoining = moment(doj).add(5, "years");
+    const isEligibleFor28Days = leaveStart.isSameOrAfter(fiveYearsAfterJoining, "day");
+
+    const eligibilityMessage = isEligibleFor28Days
+      ? " eligible for 28 days of leave"
+      : " eligible for 21 days of leave";
+
+    return res.send(eligibilityMessage);
+  } catch (error) {
+    console.error("❌ Error in CheckEligibleEmployee:", error);
+    return next(error);
+  }
+},
 
 async getEmployeeLatestLeave(req, res, next) {
   
